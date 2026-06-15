@@ -1,3 +1,9 @@
 from django.db import models
 
-# Create your models here.
+
+
+class Room(models.Model):
+	id = models.AutoField(null=False, unique=True, primary_key=True),
+	capacity = models.CharField()
+
+
