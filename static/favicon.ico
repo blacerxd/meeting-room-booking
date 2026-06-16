@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <rect width="128" height="128" fill="#2ecc71" rx="8"/>
+  <text x="64" y="88" font-size="72" font-weight="bold" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif">M</text>
+  <text x="64" y="112" font-size="16" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif">eetFlow</text>
+</svg>

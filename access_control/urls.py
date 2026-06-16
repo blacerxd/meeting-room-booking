@@ -6,4 +6,5 @@ app_name = 'access'
 urlpatterns = [
     path('policies/', views.policies_list, name='policies_list'),
     path('assign/', views.assign_policy, name='assign_policy'),
+
 ]

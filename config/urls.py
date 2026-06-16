@@ -17,6 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from . import views
+from django.views.generic.base import RedirectView
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -28,4 +30,5 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('access/', include('access_control.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
+    path("favicon.ico", RedirectView.as_view(url=staticfiles_storage.url("favicon.ico")),),
 ]
