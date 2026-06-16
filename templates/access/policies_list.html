@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Политики доступа — MeetFlow{% endblock %}
+
+{% block content %}
+<section class="page-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-subtitle">Доступ</div>
+      <h1 class="section-heading">Политики доступа</h1>
+    </div>
+
+    <div class="cards-grid">
+      {% for p in policies %}
+      <div class="card-panel">
+        <h4>{{ p.room.name }}</h4>
+        <p class="room-meta">Пользователь: {{ p.user.username }} · Уровень: {{ p.get_access_level_display }}</p>
+      </div>
+      {% empty %}
+      <div class="card-panel">Политики не найдены.</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

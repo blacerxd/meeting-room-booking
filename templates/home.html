@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная — MeetFlow{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="hero-background"></div>
+    <div class="hero-overlay"></div>
+
+    <div class="container hero-inner">
+        <div class="hero-copy">
+            <span class="hero-label">Сервис бронирования</span>
+            <h1>Переговорные комнаты для продуктивных встреч</h1>
+            <p>Быстрый поиск, удобное бронирование и все необходимое для ваших встреч</p>
+            <a href="{% url 'rooms:room_list' %}" class="hero-cta">Найти комнату <span>→</span></a>
+        </div>
+
+        <div class="hero-image"></div>
+    </div>
+
+    <div class="hero-search-panel">
+        <form method="get" action="{% url 'rooms:room_list' %}" class="d-flex" style="width:100%;">
+            <div class="search-card-item">
+                <div class="search-icon"><i class="fas fa-calendar-days"></i></div>
+                <div>
+                    <div class="search-title">Начало</div>
+                    <input id="search_start" name="start" class="form-control" placeholder="Дата и время начала" />
+                </div>
+                <div class="search-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+
+            <div class="search-card-item">
+                <div class="search-icon"><i class="fas fa-calendar-days"></i></div>
+                <div>
+                    <div class="search-title">Окончание</div>
+                    <input id="search_end" name="end" class="form-control" placeholder="Дата и время окончания" />
+                </div>
+                <div class="search-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+
+            <div class="search-card-item">
+                <div class="search-icon"><i class="fas fa-user"></i></div>
+                <div>
+                    <div class="search-title">Вместимость</div>
+                    <input name="capacity" type="number" class="form-control" min="1" placeholder="Кол-во" />
+                </div>
+                <div class="search-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+
+            <div class="search-card-item">
+                <div class="search-icon"><i class="fas fa-clover"></i></div>
+                <div>
+                    <div class="search-title">Удобства</div>
+                    <input name="q" type="text" class="form-control" placeholder="Проектор, Zoom, доска" />
+                </div>
+                <div class="search-chevron"><i class="fas fa-chevron-down"></i></div>
+            </div>
+
+            <button type="submit" class="search-action">Найти</button>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+  flatpickr('#search_start', {enableTime: true, dateFormat: 'Y-m-d\TH:i:S'});
+  flatpickr('#search_end', {enableTime: true, dateFormat: 'Y-m-d\TH:i:S'});
+</script>
+{% endblock %}

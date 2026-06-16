@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои бронирования — MeetFlow{% endblock %}
+
+{% block content %}
+<section class="page-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-subtitle">Бронирования</div>
+      <h1 class="section-heading">Мои бронирования</h1>
+    </div>
+
+    <div class="cards-grid">
+      {% for b in bookings %}
+      <div class="card-panel">
+        <h4>{{ b.room.name }}</h4>
+        <p class="room-meta">{{ b.start_time|date:'d.m.Y H:i' }} — {{ b.end_time|date:'d.m.Y H:i' }}</p>
+        <p class="room-meta">Статус: {{ b.status|capfirst }}</p>
+        <a href="{% url 'bookings:booking_detail' b.id %}" class="hero-cta">Открыть</a>
+      </div>
+      {% empty %}
+      <div class="card-panel">У вас пока нет бронирований.</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

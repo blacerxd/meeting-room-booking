@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Назначить политику — MeetFlow{% endblock %}
+
+{% block content %}
+<section class="page-section">
+  <div class="container">
+    <div class="card-panel" style="max-width:720px;margin:0 auto;">
+      <h3>Назначить политику доступа</h3>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Комната</label>
+          <select name="room" class="form-control">
+            {% for r in rooms %}<option value="{{ r.id }}">{{ r.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Пользователь</label>
+          <select name="user" class="form-control">
+            {% for u in users %}<option value="{{ u.id }}">{{ u.username }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Уровень доступа</label>
+          <select name="access_level" class="form-control">
+            <option value="view">Только просмотр</option>
+            <option value="book">Бронирование</option>
+            <option value="manage">Управление</option>
+          </select>
+        </div>
+        <button class="hero-cta" type="submit">Сохранить</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

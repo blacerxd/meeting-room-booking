@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Создать бронирование — MeetFlow{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+
+{% block content %}
+<section class="page-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-subtitle">Бронирование</div>
+      <h1 class="section-heading">Забронировать {{ room.name }}</h1>
+    </div>
+
+    <div class="card-panel" style="max-width:720px;margin:0 auto;">
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Начало</label>
+          <input id="start_time" name="start_time" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Окончание</label>
+          <input id="end_time" name="end_time" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Участников</label>
+          <input name="participants_count" type="number" min="1" value="1" class="form-control">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Цель</label>
+          <input name="purpose" type="text" class="form-control">
+        </div>
+        <button class="hero-cta" type="submit">Забронировать</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+flatpickr('#start_time', {enableTime: true, dateFormat: 'Y-m-d\TH:i:S'});
+flatpickr('#end_time', {enableTime: true, dateFormat: 'Y-m-d\TH:i:S'});
+</script>
+{% endblock %}

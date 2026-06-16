@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Бронирование #{{ booking.id }} — MeetFlow{% endblock %}
+
+{% block content %}
+<section class="page-section">
+  <div class="container">
+    <div class="card-panel" style="max-width:720px;margin:0 auto;">
+      <h3>{{ booking.room.name }}</h3>
+      <p class="room-meta">{{ booking.start_time|date:'d.m.Y H:i' }} — {{ booking.end_time|date:'d.m.Y H:i' }}</p>
+      <p class="room-meta">Участников: {{ booking.participants_count }}</p>
+      <p class="room-meta">Цель: {{ booking.purpose }}</p>
+      <p class="room-meta">Статус: {{ booking.status }}</p>
+    </div>
+  </div>
+</section>
+{% endblock %}
