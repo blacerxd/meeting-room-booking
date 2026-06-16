@@ -1,10 +1,19 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-class User(models.Model):
-	id = models.AutoField(null=False, unique=True, primary_key=True),
-	username = models.CharField(null=False, max_length=255),
-	lastname = models.CharField(null=False, max_length=255),
-	email = models.EmailField(null=False, max_length=255),
-	phone = models.IntegerField(null=False, max_length=25),
-	password = models.IntegerField(null=False, max_length=255, unique=True)
+
+class User(AbstractUser):
+    phone = models.CharField(max_length=20, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.username
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
+
+
 
