@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}QR Сканер — MeetFlow{% endblock %}
+
+{% block content %}
+<section class='page-section'>
+    <div class='container'>
+        <div class='section-header'>
+            <div class='section-subtitle'>Вход в комнату</div>
+            <h1 class='section-heading'>Сканируйте QR и заходите в переговорную</h1>
+            <p class='text-secondary mt-3'>Введите идентификатор QR-кода или используйте реальное устройство для доступа в комнату.</p>
+        </div>
+
+        <div class='scanner-panel'>
+            <form method='post' action="{% url 'rooms:process_qr' %}">
+                {% csrf_token %}
+                <label for='qr_code' class='form-label'>QR-код комнаты</label>
+                <input id='qr_code' name='qr_code' type='text' placeholder='Введите QR идентификатор' required>
+                <button type='submit'>Проверить доступ</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль — MeetFlow{% endblock %}
+
+{% block content %}
+<section class="page-section">
+  <div class="container">
+    <div class="card-panel" style="max-width:720px;margin:0 auto;">
+      <h3>Профиль</h3>
+      <p>Имя: {{ request.user.get_full_name|default:request.user.username }}</p>
+      <p>Email: {{ request.user.email }}</p>
+      <p>Зарегистрирован: {{ request.user.date_joined|date:'d.m.Y' }}</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

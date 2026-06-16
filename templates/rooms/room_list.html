@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Переговорные комнаты — MeetFlow{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-subtitle">Все переговорные</div>
+            <h1 class="section-heading">Выберите удобное пространство для встречи</h1>
+            <p class="text-secondary mt-3">Список доступных переговорных с основными параметрами и быстрым переходом к деталям.</p>
+        </div>
+
+        <div class="cards-grid">
+            {% for room in rooms %}
+            <article class="card-panel room-card">
+                <div>
+                    <h3>{{ room.name }}</h3>
+                    <p class="room-meta">{{ room.location }} · Вместимость {{ room.capacity }} человек</p>
+                    <div class="room-tags">
+                        <span class="room-tag">{{ room.get_status_display }}</span>
+                        {% if room.description %}
+                        <span class="room-tag">Описание есть</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mt-auto">
+                    <span class="room-status-pill">{{ room.get_status_display }}</span>
+                                        <div style="display:flex; gap:8px; margin-top:1rem;">
+                                            <a href="{% url 'rooms:room_detail' room.id %}" class="hero-cta" style="display:inline-flex;">Подробнее</a>
+                                            <a href="{% url 'bookings:booking_create' room.id %}" class="hero-cta" style="background:#2ecc71;">Забронировать</a>
+                                        </div>
+                </div>
+            </article>
+            {% empty %}
+            <div class="card-panel">
+                <p>Пока нет доступных переговорных комнат для вашего доступа.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

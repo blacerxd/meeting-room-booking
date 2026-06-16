@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ room.name }} — MeetFlow{% endblock %}
+
+{% block content %}
+<section class='page-section'>
+    <div class='container'>
+        <div class='section-header'>
+            <div class='section-subtitle'>Детали переговорной</div>
+            <h1 class='section-heading'>{{ room.name }}</h1>
+            <p class='text-secondary mt-3'>Информация о комнате, текущая бронь и история последних входов.</p>
+        </div>
+
+        <div class='detail-grid'>
+            <div class='detail-panel'>
+                <h4>Описание комнаты</h4>
+                <p class='room-meta'>{{ room.description|default:'Описание пока не добавлено.' }}</p>
+
+                <div class='metric-row'>
+                    <div class='metric-card'>
+                        <strong>{{ room.capacity }}</strong>
+                        Вместимость
+                    </div>
+                    <div class='metric-card'>
+                        <strong>{{ room.location|default:'Не указано' }}</strong>
+                        Местоположение
+                    </div>
+                    <div class='metric-card'>
+                        <strong>{{ room.get_status_display }}</strong>
+                        Статус
+                    </div>
+                </div>
+
+                <a href="{% url 'rooms:scanner' %}" class='hero-cta'>Открыть сканер QR</a>
+            </div>
+
+            <div class='history-panel'>
+                <h4>История бронирований</h4>
+                <ul class='history-list'>
+                    {% for booking in bookings %}
+                    <li>
+                        <p class='item-title'>{{ booking.user.get_full_name|default:booking.user.username }}</p>
+                        <p class='room-meta'>{{ booking.start_time|date:'d.m.Y H:i' }} — {{ booking.end_time|date:'d.m.Y H:i' }}</p>
+                        <p class='room-meta'>Статус: {{ booking.status|capfirst }}</p>
+                    </li>
+                    {% empty %}
+                    <li>Бронирования не найдены.</li>
+                    {% endfor %}
+                </ul>
+
+                <h4 class='mt-4'>Последние входы</h4>
+                <ul class='history-list'>
+                    {% for entry in entries %}
+                    <li>
+                        <p class='item-title'>{{ entry.user.get_full_name|default:entry.user.username }}</p>
+                        <p class='room-meta'>Вход: {{ entry.entry_time|date:'d.m.Y H:i' }}</p>
+                        <p class='room-meta'>Выход: {{ entry.exit_time|date:'d.m.Y H:i'|default:'еще в комнате' }}</p>
+                    </li>
+                    {% empty %}
+                    <li>Входы не найдены.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
