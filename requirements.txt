@@ -11,3 +11,6 @@ django-crispy-forms==2.4
 crispy-bootstrap5==2025.6
 
 django-widget-tweaks==1.5.0
+
+pytest
+pytest-django
