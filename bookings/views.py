@@ -20,6 +20,22 @@ def booking_detail(request, booking_id):
 	booking = get_object_or_404(Booking, id=booking_id, user=request.user)
 	return render(request, 'bookings/detail.html', {'booking': booking})
 
+@login_required
+def booking_cancel(request, booking_id):
+	booking = get_object_or_404(
+		Booking,
+		id=booking_id,
+		user=request.user,
+		status__in=['pending', 'confirmed', 'active']
+	)
+	if request.method == 'POST':
+		now = timezone.now()
+		booking.status = 'cancelled'
+		booking.cancelled_at = now
+		booking.save()
+
+		messages.success(request, 'Бронирование успешно отменено.')
+		return redirect('bookings/cancel_confirm.html', {'booking': booking})
 
 @login_required
 def booking_create(request, room_id):

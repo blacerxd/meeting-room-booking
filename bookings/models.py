@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from rooms.models import Room
+from django.core.exceptions import ValidationError
 
 User = get_user_model()
 
@@ -48,6 +49,39 @@ class Booking(models.Model):
         """Проверка, активно ли бронирование в данный момент"""
         now = timezone.now()
         return self.start_time <= now <= self.end_time and self.status in ['confirmed', 'active']
+    
+    def clean(self):
+        super().clean()
+
+        if not self.start_time or not self.end_time:
+            now = timezone.now()
+        
+        if self.start_time >= self.end_time:
+            raise ValidationError('Время начала не можеть быть позже или равно времени окончания')
+        
+        if not self.pk and self.start_time < now:
+            raise ValidationError('Нельзя забронировать на уже прошедшее время')
+        
+        if self.room.status != 'available':
+            raise ValidationError(f'Комната не достпуна для бронирования (Статус: {self.room.get_status_display()}).')
+        
+        if self.participants_count > self.room.capacity:
+            raise ValidationError(f'Количество участниковв ({self.participants_count})')
+        
+        conflicts = Booking.objects.filter(
+            room=self.room,
+            start_time__lt=self.end_time,
+            end_time__gt=self.start_time
+        ).exclude(status='cancelled')
+
+        if self.pk:
+            conflicts = conflicts.exclude(pk=self.pk)
+
+        if conflicts.exists():
+            raise ValidationError('В выбраном интервале времени комната уже забронирована')
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
 
 class RoomEntry(models.Model):
