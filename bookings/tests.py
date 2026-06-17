@@ -21,12 +21,7 @@ class BookingModelTest(TestCase):
         )
 
     def test_create_booking(self):
-        booking = Booking.objects.create(
-            user=self.user,
-            room=self.room,
-            start_time=timezone.now(),
-            end_time=timezone.now() + timedelta(hours=1)
-        )
+        booking = Booking.objects.create(user=self.user, room=self.room, start_time=timezone.now() + timedelta(minutes=5), end_time=timezone.now() + timedelta(hours=1))
 
         self.assertEqual(booking.user, self.user)
         self.assertEqual(booking.room, self.room)
