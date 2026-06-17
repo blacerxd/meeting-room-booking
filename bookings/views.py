@@ -36,7 +36,9 @@ def booking_cancel(request, booking_id):
 		booking.save()
 
 		messages.success(request, 'Бронирование успешно отменено.')
-		return redirect('bookings/cancel_confirm.html', {'booking': booking})
+		return redirect('bookings:booking_detail', booking_id=booking.id)
+
+	return render(request, 'bookings/cancel_confirm.html', {'booking': booking})
 
 @login_required
 def booking_create(request, room_id):

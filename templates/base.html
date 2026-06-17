@@ -19,30 +19,58 @@
     <nav class="main-nav">
         <div class="container nav-inner">
             <div class="brand-row">
-                <div class="brand-icon"></div>
-                <div>
-                    <div class="brand-title">MeetFlow</div>
-                    <div class="brand-subtitle">Переговорные под рукой</div>
+                <a href="{% url 'home' %}" class="brand-link">
+                    <div class="brand-icon"></div>
+                    <div>
+                        <div class="brand-title">MeetFlow</div>
+                        <div class="brand-subtitle">Переговорные под рукой</div>
+                    </div>
+                </a>
+            </div>
+
+            <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox">
+            <label for="nav-toggle" class="nav-toggle-btn" aria-label="Открыть меню">
+                <span></span><span></span><span></span>
+            </label>
+
+            <div class="nav-collapse">
+                <div class="nav-links">
+                    <a href="{% url 'home' %}">Главная</a>
+                    <a href="{% url 'rooms:room_list' %}">Переговорные</a>
+                    <a href="{% url 'about' %}">О сервисе</a>
+                    <a href="{% url 'contacts' %}">Контакты</a>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'bookings:booking_list' %}">Мои бронирования</a>
+                    {% endif %}
                 </div>
-            </div>
-            <div class="nav-links">
-                <a href="{% url 'home' %}">Главная</a>
-                <a href="{% url 'rooms:room_list' %}">Удобства</a>
-                <a href="{% url 'about' %}">О сервисе</a>
-                <a href="{% url 'contacts' %}">Контакты</a>
-                <a href="{% url 'bookings:booking_list' %}">Мои бронирования</a>
-            </div>
-            <div class="nav-actions">
-                {% if user.is_authenticated %}
-                    <a class="btn btn-login" href="{% url 'users:profile' %}">{{ user.get_full_name|default:user.username }}</a>
-                    <a class="btn btn-register" href="{% url 'users:logout' %}">Выйти</a>
-                {% else %}
-                    <a class="btn btn-login" href="{% url 'login' %}">Войти</a>
-                    <a class="btn btn-register" href="{% url 'users:register' %}">Зарегистрироваться</a>
-                {% endif %}
+                <div class="nav-actions">
+                    {% if user.is_authenticated %}
+                        <a class="btn btn-login" href="{% url 'users:profile' %}">{{ user.get_full_name|default:user.username }}</a>
+                        <a class="btn btn-register" href="{% url 'users:logout' %}">Выйти</a>
+                    {% else %}
+                        <a class="btn btn-login" href="{% url 'login' %}">Войти</a>
+                        <a class="btn btn-register" href="{% url 'users:register' %}">Зарегистрироваться</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </nav>
+
+    {% if messages %}
+    <div class="alerts-stack container">
+        {% for message in messages %}
+        <div class="alert-card alert-{{ message.tags|default:'info' }}">
+            <span class="alert-icon">
+                {% if message.tags == 'success' %}<i class="fas fa-circle-check"></i>
+                {% elif message.tags == 'error' %}<i class="fas fa-circle-exclamation"></i>
+                {% elif message.tags == 'warning' %}<i class="fas fa-triangle-exclamation"></i>
+                {% else %}<i class="fas fa-circle-info"></i>{% endif %}
+            </span>
+            <span class="alert-text">{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
     {% block content %}{% endblock %}
 
@@ -53,6 +81,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/app.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
