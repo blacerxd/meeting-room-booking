@@ -49,25 +49,25 @@ class Booking(models.Model):
         """Проверка, активно ли бронирование в данный момент"""
         now = timezone.now()
         return self.start_time <= now <= self.end_time and self.status in ['confirmed', 'active']
-    
+
     def clean(self):
         super().clean()
-
+        now = timezone.now()
         if not self.start_time or not self.end_time:
-            now = timezone.now()
-        
+            raise ValidationError('Укажите время начала и окончания бронирования')
+
         if self.start_time >= self.end_time:
             raise ValidationError('Время начала не можеть быть позже или равно времени окончания')
-        
+
         if not self.pk and self.start_time < now:
             raise ValidationError('Нельзя забронировать на уже прошедшее время')
-        
+
         if self.room.status != 'available':
             raise ValidationError(f'Комната не достпуна для бронирования (Статус: {self.room.get_status_display()}).')
-        
+
         if self.participants_count > self.room.capacity:
             raise ValidationError(f'Количество участниковв ({self.participants_count})')
-        
+
         conflicts = Booking.objects.filter(
             room=self.room,
             start_time__lt=self.end_time,
