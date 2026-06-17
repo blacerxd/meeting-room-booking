@@ -1,34 +1,63 @@
-name: Deploy
+name: Django Tests
 
 on:
+  pull_request:
   push:
     branches:
       - main
 
 jobs:
-  deploy:
+  test:
+
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:17
+
+        env:
+          POSTGRES_DB: test_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+
+        ports:
+          - 5432:5432
+
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      SECRET_KEY: test-secret-key
+
+      DB_NAME: test_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: localhost
+      DB_PORT: 5432
+
     steps:
-      - name: Deploy
-        uses: appleboy/ssh-action@v1.0.3
 
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
+          python-version: "3.12"
 
-          script: |
-            cd /opt/meeting-room-booking
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
 
-            git pull
+      - name: Django check
+        run: |
+          python manage.py check
 
-            source .venv/bin/activate
+      - name: Migration check
+        run: |
+          python manage.py makemigrations --check --dry-run
 
-            pip install -r requirements.txt
-
-            python manage.py migrate
-
-            python manage.py collectstatic --noinput
-
-            sudo systemctl restart gunicorn
+      - name: Run tests
+        run: |
+          pytest
