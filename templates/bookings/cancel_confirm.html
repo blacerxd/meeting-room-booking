@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Отмена бронирования — MeetFlow{% endblock %}
+
+{% block content %}
+<section class="page-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-subtitle">Бронирование</div>
+      <h1 class="section-heading">Отменить бронирование?</h1>
+    </div>
+
+    <div class="card-panel" style="max-width:560px;margin:0 auto;">
+      <h4>{{ booking.room.name }}</h4>
+      <p class="room-meta">{{ booking.start_time|date:'d.m.Y H:i' }} — {{ booking.end_time|date:'d.m.Y H:i' }}</p>
+      <span class="status-pill status-{{ booking.status }}">{{ booking.get_status_display }}</span>
+
+      <p class="room-meta mt-3">Это действие нельзя отменить. Комната снова станет доступна для бронирования другими пользователями на этот интервал.</p>
+
+      <form method="post" style="display:flex; gap:12px; margin-top:1.4rem;">
+        {% csrf_token %}
+        <button type="submit" class="btn-outline-danger-soft">Да, отменить</button>
+        <a href="{% url 'bookings:booking_detail' booking.id %}" class="btn-ghost">Назад</a>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

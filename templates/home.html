@@ -1,8 +1,12 @@
 {% extends 'base.html' %}
 
 {% block title %}Главная — MeetFlow{% endblock %}
-{% load static %}
-<link rel="icon"  href="{% static 'favicon.ico' %}" >
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+{% endblock %}
+
 {% block content %}
 <section class="hero-section">
     <div class="hero-background"></div>
@@ -19,7 +23,7 @@
     </div>
 
     <div class="hero-search-panel">
-        <form method="get" action="{% url 'rooms:room_list' %}" class="d-flex" style="width:100%;">
+        <form method="get" action="{% url 'rooms:room_list' %}" class="d-flex search-form">
             <div class="search-card-item">
                 <div class="search-icon"><i class="fas fa-calendar-days"></i></div>
                 <div>
@@ -60,12 +64,49 @@
         </form>
     </div>
 </section>
+
+<section class="page-section">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-subtitle">Почему MeetFlow</div>
+            <h2 class="section-heading">Всё для встречи в одном окне</h2>
+            <p class="text-secondary mt-3">От поиска свободного зала до контроля доступа по QR-коду — без лишних звонков и таблиц.</p>
+        </div>
+
+        <div class="cards-grid">
+            <div class="card-panel">
+                <h4 class="feature-title"><i class="fas fa-magnifying-glass"></i>Быстрый поиск</h4>
+                <p class="room-meta">Фильтруйте переговорные по вместимости, времени и нужному оснащению — проектор, Zoom-экран, доска.</p>
+            </div>
+            <div class="card-panel">
+                <h4 class="feature-title"><i class="fas fa-calendar-check"></i>Бронирование за секунды</h4>
+                <p class="room-meta">Выбрали комнату — указали время — готово. Система сама проверит конфликты по расписанию.</p>
+            </div>
+            <div class="card-panel">
+                <h4 class="feature-title"><i class="fas fa-qrcode"></i>Вход по QR-коду</h4>
+                <p class="room-meta">Доступ в переговорную подтверждается сканированием QR — никаких бумажных списков и ключей.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="page-section">
+    <div class="container">
+        <div class="card-panel cta-banner">
+            <div>
+                <h3>Готовы провести встречу с комфортом?</h3>
+                <p class="room-meta">Найдите свободную переговорную и забронируйте её прямо сейчас.</p>
+            </div>
+            <a href="{% url 'rooms:room_list' %}" class="hero-cta">Смотреть переговорные <span>→</span></a>
+        </div>
+    </div>
+</section>
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-  flatpickr('#search_start', {enableTime: true, dateFormat: 'Y-m-d\TH:i:S'});
-  flatpickr('#search_end', {enableTime: true, dateFormat: 'Y-m-d\TH:i:S'});
+  flatpickr('#search_start', {enableTime: true, dateFormat: 'Y-m-d\\TH:i:S'});
+  flatpickr('#search_end', {enableTime: true, dateFormat: 'Y-m-d\\TH:i:S'});
 </script>
 {% endblock %}
