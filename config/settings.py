@@ -1,3 +1,6 @@
+import os 
+from pathlib import Path
+
 """
 Django settings for config project.
 
@@ -135,3 +138,108 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'no-reply@meetflow.local'
+
+# logging configuration
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+LOGS_DIR = BASE_DIR / 'logs'
+LOGS_DIR.mkdir(exist_ok=True)
+
+Logging = {
+    'version': 1,
+    'disable existing loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] {levelname} {name} {module}.{funcName}:{lineno} - {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '[{asctime}] {levelname}-{message}',
+            'style': '{',
+        },
+        'json': {
+            'format': '{{"time": "{asctime}", "level": "{levelname}", "logger": "{name}", "message": "{message}"}}',
+            'style': '{',
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'file_general': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOGS_DIR / 'errors.log',
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 10,
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
+        },
+        'file_bookings': {
+            'level': 'INFO',
+            'class': 'logging.handlers.AdminEmailHandler',
+            'filename': LOGS_DIR / 'bookings.log',
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 5,
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file_general'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['file_general', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django_security': {
+            'handlers': ['file_errors', 'mail_admins'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'bookings': {
+            'handlers': ['console', 'file_bookings', 'file_errors'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'rooms': {
+            'handlers': ['console', 'file_general'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'users': {
+            'handlers': ['console', 'file_general', 'file_errors'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'access_control': {
+            'handlers': ['console', 'file_general', 'file_errors'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
+
+ADMINS = [{'Admin', 'admin@example.com'}]
+SERVER_EMAIL = 'errors@example.com'

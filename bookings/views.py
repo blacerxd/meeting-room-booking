@@ -7,10 +7,11 @@ from django.contrib import messages
 from .models import Booking
 from rooms.models import Room
 
+import logging
+
 
 @login_required
 def booking_list(request):
-	# показываем бронирования пользователя
 	bookings = Booking.objects.filter(user=request.user).order_by('-start_time')
 	return render(request, 'bookings/list.html', {'bookings': bookings})
 
@@ -58,7 +59,6 @@ def booking_create(request, room_id):
 			messages.error(request, 'Проверьте дату и время бронирования')
 			return redirect('bookings:booking_create', room_id=room.id)
 
-		# Проверка конфликтов
 		conflict = Booking.objects.filter(room=room, start_time__lt=end_dt, end_time__gt=start_dt).exists()
 		if conflict:
 			messages.error(request, 'В выбранный интервал уже есть бронирование')
@@ -77,5 +77,40 @@ def booking_create(request, room_id):
 		messages.success(request, 'Бронирование создано')
 		return redirect('bookings:booking_detail', booking_id=booking.id)
 
-	# GET
 	return render(request, 'bookings/create.html', {'room': room})
+
+logger = logging.getLogger(__name__) 
+
+def create_booking(request):
+    try:
+        if request.method == 'POST':
+            booking = Booking.objects.create(...)
+            logger.info(
+                f"Создана бронь #{booking.id} пользователем {request.user.username} "
+                f"на комнату {booking.room.name}"
+            )
+            return redirect('bookings:list')
+    except ValueError as e:
+        logger.warning(f"Ошибка валидации при бронировании: {e}")
+        messages.error(request, "Проверьте введённые данные")
+    except Exception as e:
+        logger.error(
+            f"Ошибка при создании бронирования пользователем {request.user}: {e}",
+            exc_info=True
+        )
+        messages.error(request, "Произошла ошибка. Попробуйте позже.")
+    
+    return render(request, 'bookings/create.html')
+
+
+def cancel_booking(request, booking_id):
+    try:
+        booking = Booking.objects.get(id=booking_id)
+        booking.delete()
+        logger.info(f"Бронь #{booking_id} отменена пользователем {request.user.username}")
+    except Booking.DoesNotExist:
+        logger.warning(f"Попытка отмены несуществующей брони #{booking_id}")
+    except Exception as e:
+        logger.error(f"Ошибка отмены брони #{booking_id}: {e}", exc_info=True)
+    
+    return redirect('bookings:list')
