@@ -44,6 +44,14 @@
                     <a href="{% url 'bookings:booking_list' %}">Мои бронирования</a>
                     {% endif %}
                 </div>
+                <label class="theme-toggle" aria-label="Переключить тему">
+                    <span class="theme-toggle-icon">
+                        <i class="fas fa-sun"></i>
+                        <i class="fas fa-moon"></i>
+                    </span>
+                    <input type="checkbox" class="theme-toggle-checkbox">
+                    <span class="theme-toggle-slider"></span>
+                </label>
                 <div class="nav-actions">
                     {% if user.is_authenticated %}
                         <a class="btn btn-login" href="{% url 'users:profile' %}">{{ user.get_full_name|default:user.username }}</a>

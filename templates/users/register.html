@@ -9,7 +9,22 @@
       <h3>Создать аккаунт</h3>
       <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {% for field in form %}
+        <p>
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}
+          <span class="helptext">{{ field.help_text|safe }}</span>
+          {% endif %}
+          {% if field.errors %}
+          <ul class="errorlist">
+            {% for error in field.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </p>
+        {% endfor %}
         <button class="hero-cta" type="submit">Зарегистрироваться</button>
       </form>
     </div>

@@ -187,9 +187,37 @@
     });
   }
 
+  /* ---------- Theme toggle ---------- */
+
+  function initThemeToggle() {
+    const html = document.documentElement;
+    const toggle = document.querySelector('.theme-toggle');
+    if (!toggle) return;
+
+    const saved = localStorage.getItem('theme');
+    if (saved === 'light') {
+      html.setAttribute('data-theme', 'light');
+    } else if (!saved && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      html.setAttribute('data-theme', 'light');
+    }
+
+    toggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      const isLight = html.getAttribute('data-theme') === 'light';
+      if (isLight) {
+        html.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        html.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+      }
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     initQrScanner();
     initExitButtons();
     initCancelConfirm();
+    initThemeToggle();
   });
 })();
