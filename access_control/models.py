@@ -21,17 +21,10 @@ class RoomAccessPolicy(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='access_policies')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='room_access_policies')
 
-    # Уровень доступа
     access_level = models.CharField(max_length=20, choices=ACCESS_LEVEL, default='book')
-
-    # Активна ли политика
     is_active = models.BooleanField(default=True)
-
-    # Период действия (опционально)
     valid_from = models.DateTimeField(null=True, blank=True)
     valid_until = models.DateTimeField(null=True, blank=True)
-
-    # Технические поля
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

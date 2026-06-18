@@ -5,7 +5,7 @@
 {% block content %}
 <section class="page-section">
   <div class="container">
-    <div class="card-panel" style="max-width:520px;margin:0 auto;">
+    <div class="card-panel card-narrow">
       <h3>Вход</h3>
       <form method="post" action="{% url 'login' %}">
         {% csrf_token %}

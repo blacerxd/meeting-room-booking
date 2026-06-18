@@ -1,5 +1,6 @@
 from django.db import models
 import uuid
+import os
 
 
 class Room(models.Model):
@@ -16,13 +17,9 @@ class Room(models.Model):
     location = models.CharField(max_length=200, blank=True)
     image = models.ImageField(upload_to='rooms/', blank=True, null=True, help_text='Фотография переговорной комнаты')
 
-    # QR код для входа
     qr_code_id = models.CharField(max_length=36, unique=True, default=uuid.uuid4)
-
-    # Статус комнаты
     status = models.CharField(max_length=20, choices=ROOM_STATUS, default='available')
-
-    # Технические поля
+    image = models.ImageField(upload_to='rooms/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
