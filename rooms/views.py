@@ -57,15 +57,26 @@ def process_qr_code(request):
             'message': 'У вас нет доступа к этой комнате'
         })
 
-    # Проверяем, есть ли активное бронирование
-    try:
-        booking = get_active_booking(request.user, room)
-    except DatabaseError as e:
-        logger.error("Database error checking active booking for user %s in room %s: %s", request.user, room.name, e, exc_info=True)
-        return JsonResponse({
-            'success': False,
-            'message': 'Ошибка при проверке бронирования'
-        })
+    # Проверяем, есть ли активное бронирование (ОБЯЗАТЕЛЬНО для не-суперпользователей)
+    if not request.user.is_superuser:
+        try:
+            booking = get_active_booking(request.user, room)
+        except DatabaseError as e:
+            logger.error("Database error checking active booking for user %s in room %s: %s", request.user, room.name, e, exc_info=True)
+            return JsonResponse({
+                'success': False,
+                'message': 'Ошибка при проверке бронирования'
+            })
+        
+        if not booking:
+            logger.warning("User %s tried to access room %s without active booking", request.user, room.name)
+            return JsonResponse({
+                'success': False,
+                'message': 'У вас нет активного бронирования для этой комнаты. Забронируйте комнату сначала.'
+            })
+    else:
+        # Суперпользователь может входить без бронирования
+        booking = None
 
     try:
         # Создаём запись о входе
@@ -166,14 +177,24 @@ def has_room_access(user, room):
 
 
 def get_active_booking(user, room):
-    """Получает активное бронирование пользователя в комнате"""
+    """Получает активное бронирование пользователя в комнате.
+    Доступ открывается за 30 минут до начала бронирования."""
     now = timezone.now()
+    from django.utils.timezone import timedelta
     try:
+        # Разрешаем вход за 30 минут до начала бронирования
+        # start_time <= now + 30min  → можно войти за 30 мин до начала
+        # end_time >= now            → бронирование ещё не закончилось
+        early_access_threshold = now + timedelta(minutes=30)
+        logger.debug(
+            "Checking booking for user %s in room %s: now=%s, early_access_threshold=%s",
+            user, room.name, now, early_access_threshold
+        )
         booking = Booking.objects.filter(
             user=user,
             room=room,
             status__in=['confirmed', 'active'],
-            start_time__lte=now,
+            start_time__lte=early_access_threshold,
             end_time__gte=now,
         ).first()
     except DatabaseError as e:
@@ -181,12 +202,21 @@ def get_active_booking(user, room):
         return None
 
     if booking:
+        logger.info(
+            "User %s can access room %s: booking #%d from %s to %s (early_access=30min)",
+            user, room.name, booking.id, booking.start_time, booking.end_time
+        )
         try:
             booking.status = 'active'
             booking.save()
             logger.debug("Updated booking #%d status to 'active' for user %s in room %s", booking.id, user, room.name)
         except (DatabaseError, ValidationError) as e:
             logger.error("Error updating booking #%d status to active: %s", booking.id, e, exc_info=True)
+    else:
+        logger.debug(
+            "User %s has NO active booking for room %s (now=%s, threshold=%s)",
+            user, room.name, now, early_access_threshold
+        )
 
     return booking
 
@@ -227,11 +257,13 @@ def room_list(request):
 
         conflict = False
         if start_dt and end_dt:
+            from django.utils.timezone import timedelta
             try:
+                # 30-min buffer for conflict check
                 conflict = Booking.objects.filter(
                     room=room,
-                    start_time__lt=end_dt,
-                    end_time__gt=start_dt,
+                    start_time__lt=end_dt + timedelta(minutes=30),
+                    end_time__gt=start_dt - timedelta(minutes=30),
                     status__in=['confirmed', 'active']
                 ).exists()
             except DatabaseError as e:

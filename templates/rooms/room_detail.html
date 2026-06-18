@@ -16,6 +16,12 @@
                 <h4>Описание комнаты</h4>
                 <p class='room-meta'>{{ room.description|default:'Описание пока не добавлено.' }}</p>
 
+                {% if room.image %}
+                <div style="margin: 1.5rem 0; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                    <img src="{{ room.image.url }}" alt="{{ room.name }}" style="width: 100%; height: auto; display: block;">
+                </div>
+                {% endif %}
+
                 <div class='metric-row'>
                     <div class='metric-card'>
                         <strong>{{ room.capacity }}</strong>
@@ -31,10 +37,34 @@
                     </div>
                 </div>
 
-                <a href="{% url 'rooms:scanner' %}" class='hero-cta'>Открыть сканер QR</a>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a href="{% url 'rooms:scanner' %}" class='hero-cta'>Открыть сканер QR</a>
+                    <a href="{% url 'rooms:room_list' %}" class='btn-ghost-cta'>← Назад к списку</a>
+                </div>
             </div>
 
             <div class='history-panel'>
+                <h4>QR код для входа</h4>
+                <div style="text-align: center; padding: 2rem; background: white; border-radius: 16px; margin: 1rem 0;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ room.qr_code_id }}&bgcolor=ffffff&color=000000" 
+                         alt="QR код для {{ room.name }}" 
+                         style="max-width: 200px; border: 2px solid #333; padding: 10px; border-radius: 8px;">
+                    <p style="color: #666; margin-top: 1rem; font-size: 0.85rem; word-break: break-all;">
+                        {{ room.qr_code_id }}
+                    </p>
+                </div>
+                <p class='text-secondary' style='font-size: 0.9rem; margin-top: 1rem;'>
+                    <strong>Как использовать:</strong><br>
+                    1. Откройте <a href="{% url 'rooms:scanner' %}" style='color: var(--accent);'>страницу сканера</a><br>
+                    2. Разрешите доступ к камере<br>
+                    3. Наведите камеру на этот QR код<br>
+                    4. Система автоматически откроет доступ в комнату
+                </p>
+            </div>
+        </div>
+
+        <div class='mt-5'>
+            <div class='history-panel mb-4'>
                 <h4>История бронирований</h4>
                 <ul class='history-list'>
                     {% for booking in bookings %}
@@ -47,8 +77,10 @@
                     <li>Бронирования не найдены.</li>
                     {% endfor %}
                 </ul>
+            </div>
 
-                <h4 class='mt-4'>Последние входы</h4>
+            <div class='history-panel'>
+                <h4>Последние входы</h4>
                 <ul class='history-list'>
                     {% for entry in entries %}
                     <li>
