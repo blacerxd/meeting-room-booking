@@ -48,14 +48,25 @@
                     <div class="search-title">Вместимость</div>
                     <input name="capacity" type="number" class="form-control" min="1" placeholder="Кол-во" />
                 </div>
-                <div class="search-chevron"><i class="fas fa-chevron-down"></i></div>
             </div>
 
             <div class="search-card-item">
                 <div class="search-icon"><i class="fas fa-clover"></i></div>
                 <div>
                     <div class="search-title">Удобства</div>
-                    <input name="q" type="text" class="form-control" placeholder="Проектор, Zoom, доска" />
+                    <select name="q" class="form-control search-select">
+                        <option value="">Любые</option>
+                        <option value="проектор">Проектор</option>
+                        <option value="zoom">Zoom / Видеоконференция</option>
+                        <option value="доска">Магнитно-маркерная доска</option>
+                        <option value="телевизор">Телевизор / Экран</option>
+                        <option value="микрофон">Микрофон</option>
+                        <option value="колонки">Колонки / Аудиосистема</option>
+                        <option value="wi-fi">Wi-Fi</option>
+                        <option value="кондиционер">Кондиционер</option>
+                        <option value="кулер">Кулер с водой</option>
+                        <option value="кофе">Кофе-машина</option>
+                    </select>
                 </div>
                 <div class="search-chevron"><i class="fas fa-chevron-down"></i></div>
             </div>
