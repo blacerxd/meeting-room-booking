@@ -45,10 +45,15 @@ select {
 }
 
 .main-nav {
-  position: absolute;
-  inset: 0 0 auto;
-  z-index: 20;
-  padding: 28px 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 16px 0;
+  background: rgba(6, 9, 15, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .nav-inner {
@@ -161,8 +166,9 @@ select {
 
 .hero-section {
   position: relative;
+  min-height: 100vh;
   padding-top: 120px;
-  padding-bottom: 60px;
+  padding-bottom: 120px;
   overflow: hidden;
 }
 
@@ -361,8 +367,9 @@ select {
 }
 
 .page-section {
-  padding: 100px 0 80px;
+  padding: 140px 0 80px;
   position: relative;
+  z-index: 1;
 }
 
 .page-section .section-header {
@@ -926,25 +933,6 @@ select {
 }
 
 .btn-ghost-cta:hover {
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  gap: 10px;
-  padding: 14px 24px;
-  font-weight: 600;
-  color: var(--text-light);
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.btn-ghost:hover {
   transform: translateY(-1px);
   background: rgba(255, 255, 255, 0.12);
 }

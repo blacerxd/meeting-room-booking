@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["188.127.227.39", "127.0.0.1"]
+ALLOWED_HOSTS = ["188.127.227.39", "127.0.0.1", "localhost", "0.0.0.0"]
 
 
 # Application definition
@@ -49,17 +49,23 @@ INSTALLED_APPS = [
 
 
 MIDDLEWARE = [
-    'config.middleware.RequestLoggingMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'config.middleware.RequestLoggingMiddleware',
+    'config.middleware.ErrorLoggingMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
+
+# HTTPS/SSL settings for camera access
+SECURE_SSL_REDIRECT = False  # Set to True in production with HTTPS
+SESSION_COOKIE_SECURE = False  # Set to True in production
+CSRF_COOKIE_SECURE = False  # Set to True in production
 
 TEMPLATES = [
     {
@@ -134,9 +140,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "users.User"
 
@@ -146,26 +149,20 @@ LOGOUT_REDIRECT_URL = '/'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'no-reply@meetflow.local'
 
-# logging configuration
-BASE_DIR = Path(__file__).resolve().parent.parent
-
+# Logging configuration
 LOGS_DIR = BASE_DIR / 'logs'
 LOGS_DIR.mkdir(exist_ok=True)
 
-Logging = {
+LOGGING = {
     'version': 1,
-    'disable existing loggers': False,
+    'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
             'format': '[{asctime}] {levelname} {name} {module}.{funcName}:{lineno} - {message}',
             'style': '{',
         },
         'simple': {
-            'format': '[{asctime}] {levelname}-{message}',
-            'style': '{',
-        },
-        'json': {
-            'format': '{{"time": "{asctime}", "level": "{levelname}", "logger": "{name}", "message": "{message}"}}',
+            'format': '[{asctime}] {levelname} - {message}',
             'style': '{',
         },
     },
@@ -187,6 +184,15 @@ Logging = {
         'file_general': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOGS_DIR / 'general.log',
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 10,
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
+        },
+        'file_errors': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': LOGS_DIR / 'errors.log',
             'maxBytes': 1024 * 1024 * 5,
             'backupCount': 10,
@@ -195,7 +201,7 @@ Logging = {
         },
         'file_bookings': {
             'level': 'INFO',
-            'class': 'logging.handlers.AdminEmailHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': LOGS_DIR / 'bookings.log',
             'maxBytes': 1024 * 1024 * 5,
             'backupCount': 5,
@@ -216,11 +222,11 @@ Logging = {
             'propagate': False,
         },
         'django.request': {
-            'handlers': ['file_general', 'mail_admins'],
+            'handlers': ['file_errors', 'mail_admins'],
             'level': 'ERROR',
             'propagate': False,
         },
-        'django_security': {
+        'django.security': {
             'handlers': ['file_errors', 'mail_admins'],
             'level': 'WARNING',
             'propagate': False,
@@ -231,7 +237,7 @@ Logging = {
             'propagate': False,
         },
         'rooms': {
-            'handlers': ['console', 'file_general'],
+            'handlers': ['console', 'file_general', 'file_errors'],
             'level': 'DEBUG',
             'propagate': False,
         },
@@ -248,5 +254,5 @@ Logging = {
     },
 }
 
-ADMINS = [{'Admin', 'admin@example.com'}]
+ADMINS = [('Admin', 'admin@example.com')]
 SERVER_EMAIL = 'errors@example.com'

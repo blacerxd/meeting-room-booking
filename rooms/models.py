@@ -15,6 +15,7 @@ class Room(models.Model):
     description = models.TextField(blank=True, null=True)
     capacity = models.PositiveIntegerField()
     location = models.CharField(max_length=200, blank=True)
+    image = models.ImageField(upload_to='rooms/', blank=True, null=True, help_text='Фотография переговорной комнаты')
 
     qr_code_id = models.CharField(max_length=36, unique=True, default=uuid.uuid4)
     status = models.CharField(max_length=20, choices=ROOM_STATUS, default='available')
