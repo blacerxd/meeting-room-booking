@@ -3,18 +3,7 @@
 {% block title %}QR Сканер — MeetFlow{% endblock %}
 
 {% block content %}
-<<<<<<< HEAD
-<section class='page-section'>
-    <div class='container'>
-        <div class='section-header'>
-            <div class='section-subtitle'>Вход в комнату</div>
-            <h1 class='section-heading'>Сканируйте QR и заходите в переговорную</h1>
-            <p class='text-secondary mt-3'>Введите идентификатор QR-кода или используйте реальное устройство для доступа в комнату.</p>
-        </div>
 
-        <div class='scanner-panel'>
-            <form method='post' action="{% url 'rooms:process_qr' %}" data-qr-form>
-=======
 <section class="page-section">
     <div class="container">
         <div class="section-header">
@@ -27,7 +16,7 @@
             <div id="qr-reader" style="width: 100%; border-radius: 16px; overflow: hidden; min-height: 300px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center;">
                 <p style="color: var(--text-muted);">Нажмите кнопку ниже для запуска камеры</p>
             </div>
-            
+
             <div style="text-align: center; margin: 1rem 0;">
                 <button type="button" id="start-camera-btn" class="hero-cta">
                     <i class="fas fa-camera"></i> Запустить камеру
@@ -37,7 +26,6 @@
             <div style="text-align: center; margin: 1rem 0; color: var(--text-muted);">— или введите вручную —</div>
 
             <form id="qr-form" method="post" action="{% url 'rooms:process_qr' %}">
->>>>>>> 43abe7642129155a9f9fd02a7ea8c5b437a154c3
                 {% csrf_token %}
                 <label for='qr_code' class='form-label'>QR-код комнаты</label>
                 <input id='qr_code' name='qr_code' type='text' placeholder='Введите QR идентификатор' required>
@@ -52,12 +40,7 @@
 {% block extra_js %}
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
-<<<<<<< HEAD
-  window.MeetFlow = window.MeetFlow || {};
-  window.MeetFlow.onEntryCreated = function (data) {
-    const resultBox = document.querySelector('[data-scanner-result]');
-    if (!resultBox || !data.entry_id) return;
-=======
+
 (function () {
     var form = document.getElementById('qr-form');
     var input = document.getElementById('qr_code');
@@ -69,7 +52,7 @@
     var startCameraBtn = document.getElementById('start-camera-btn');
     var html5QrcodeScanner = null;
     var scannerActive = false;
->>>>>>> 43abe7642129155a9f9fd02a7ea8c5b437a154c3
+
 
     const exitUrl = '{% url "rooms:exit_room" 0 %}'.replace('0', data.entry_id);
     const btn = document.createElement('button');
@@ -79,11 +62,6 @@
     btn.setAttribute('data-exit-entry', data.entry_id);
     btn.setAttribute('data-exit-url', exitUrl);
 
-<<<<<<< HEAD
-    resultBox.appendChild(document.createElement('br'));
-    resultBox.appendChild(btn);
-  };
-=======
     function stopScanner() {
         if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
             html5QrcodeScanner.stop().catch(function(err) {
@@ -95,18 +73,18 @@
 
     function startScanner() {
         if (scannerActive) return;
-        
+
         try {
             html5QrcodeScanner = new Html5QrcodeScanner(
                 "qr-reader",
-                { 
+                {
                     fps: 10,
                     qrbox: { width: 250, height: 250 },
                     aspectRatio: 1.0
                 },
                 false
             );
-            
+
             html5QrcodeScanner.render(onScanSuccess, onScanFailure);
             scannerActive = true;
             startCameraBtn.style.display = 'none';
@@ -132,16 +110,16 @@
     });
 
     var processingQR = false;
-    
+
     form.addEventListener('submit', function (event) {
         event.preventDefault();
-        
+
         if (processingQR) return;
         processingQR = true;
-        
+
         stopScanner();
         startCameraBtn.style.display = 'inline-flex';
-        
+
         submitBtn.disabled = true;
         submitBtn.textContent = 'Проверяем...';
         exitBtn.hidden = true;
@@ -201,6 +179,5 @@
         });
     });
 })();
->>>>>>> 43abe7642129155a9f9fd02a7ea8c5b437a154c3
 </script>
 {% endblock %}

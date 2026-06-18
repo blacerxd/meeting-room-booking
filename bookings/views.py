@@ -95,7 +95,7 @@ def booking_create(request, room_id):
             start_dt = make_aware(start_dt)
         if end_dt.tzinfo is None:
             end_dt = make_aware(end_dt)
-        
+
         if start_dt <= timezone.now():
             logger.warning("User %s tried to book in the past: start=%s, now=%s", request.user, start_dt, timezone.now())
             messages.error(request, 'Нельзя бронировать на прошедшее время')
