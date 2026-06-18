@@ -1,8 +1,29 @@
-.env
-.venv
-db.sqlite3
+# Python
 __pycache__/
-logs/
-*.log
 *.pyc
-migrations/
+*.pyo
+*.pyd
+.Python
+*.py[cod]
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+media/
+
+# Static files collected
+staticfiles/
+
+# Environment variables
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
