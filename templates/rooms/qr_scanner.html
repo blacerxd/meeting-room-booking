@@ -3,7 +3,6 @@
 {% block title %}QR Сканер — MeetFlow{% endblock %}
 
 {% block content %}
-
 <section class="page-section">
     <div class="container">
         <div class="section-header">
@@ -13,25 +12,30 @@
         </div>
 
         <div class="scanner-panel">
-            <div id="qr-reader" style="width: 100%; border-radius: 16px; overflow: hidden; min-height: 300px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center;">
-                <p style="color: var(--text-muted);">Нажмите кнопку ниже для запуска камеры</p>
+            <div id="qr-reader" style="width:100%;border-radius:16px;overflow:hidden;min-height:300px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;">
+                <p style="color:var(--text-muted);">Нажмите кнопку ниже для запуска камеры</p>
             </div>
 
-            <div style="text-align: center; margin: 1rem 0;">
+            <div style="text-align:center;margin:1rem 0;">
                 <button type="button" id="start-camera-btn" class="hero-cta">
                     <i class="fas fa-camera"></i> Запустить камеру
                 </button>
             </div>
 
-            <div style="text-align: center; margin: 1rem 0; color: var(--text-muted);">— или введите вручную —</div>
+            <div style="text-align:center;margin:1rem 0;color:var(--text-muted);">— или введите вручную —</div>
 
             <form id="qr-form" method="post" action="{% url 'rooms:process_qr' %}">
                 {% csrf_token %}
-                <label for='qr_code' class='form-label'>QR-код комнаты</label>
-                <input id='qr_code' name='qr_code' type='text' placeholder='Введите QR идентификатор' required>
-                <button type='submit' class='hero-cta'>Проверить доступ</button>
+                <label for="qr_code" class="form-label">QR-код комнаты</label>
+                <input id="qr_code" name="qr_code" type="text" placeholder="Введите QR идентификатор" required>
+                <button type="submit" id="qr-submit-btn">Проверить доступ</button>
             </form>
-            <div class="scanner-result" data-scanner-result></div>
+
+            <div id="qr-result" hidden style="margin-top:1.4rem;padding:1.2rem 1.4rem;border-radius:16px;text-align:center;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);">
+                <div class="qr-result-icon" style="font-size:2rem;margin-bottom:0.5rem;"><i class="fas"></i></div>
+                <p class="qr-result-message" style="margin:0;color:var(--text-light);"></p>
+                <button type="button" id="qr-exit-btn" class="btn-ghost-cta" hidden style="margin-top:1rem;">Зафиксировать выход</button>
+            </div>
         </div>
     </div>
 </section>
@@ -40,7 +44,6 @@
 {% block extra_js %}
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
-
 (function () {
     var form = document.getElementById('qr-form');
     var input = document.getElementById('qr_code');
@@ -52,18 +55,19 @@
     var startCameraBtn = document.getElementById('start-camera-btn');
     var html5QrcodeScanner = null;
     var scannerActive = false;
+    var processingQR = false;
 
-
-    const exitUrl = '{% url "rooms:exit_room" 0 %}'.replace('0', data.entry_id);
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'btn-ghost-cta mt-3';
-    btn.textContent = 'Выйти из комнаты';
-    btn.setAttribute('data-exit-entry', data.entry_id);
-    btn.setAttribute('data-exit-url', exitUrl);
+    function showResult(success, message) {
+        resultBox.hidden = false;
+        resultBox.style.borderColor = success ? 'rgba(61,220,151,0.3)' : 'rgba(255,92,122,0.3)';
+        resultBox.style.background = success ? 'rgba(61,220,151,0.1)' : 'rgba(255,92,122,0.1)';
+        resultIcon.className = success ? 'fas fa-circle-check' : 'fas fa-circle-exclamation';
+        resultIcon.style.color = success ? 'var(--success)' : 'var(--danger)';
+        resultMessage.textContent = message;
+    }
 
     function stopScanner() {
-        if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
+        if (html5QrcodeScanner && scannerActive) {
             html5QrcodeScanner.stop().catch(function(err) {
                 console.warn('Scanner stop warning:', err);
             });
@@ -73,66 +77,48 @@
 
     function startScanner() {
         if (scannerActive) return;
-
         try {
             html5QrcodeScanner = new Html5QrcodeScanner(
                 "qr-reader",
-                {
-                    fps: 10,
-                    qrbox: { width: 250, height: 250 },
-                    aspectRatio: 1.0
-                },
+                { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
                 false
             );
-
-            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+            html5QrcodeScanner.render(onScanSuccess, function(){});
             scannerActive = true;
             startCameraBtn.style.display = 'none';
         } catch (e) {
-            console.error('Scanner error:', e);
             showResult(false, 'Ошибка запуска камеры: ' + e.message);
         }
     }
 
-    function onScanSuccess(decodedText, decodedResult) {
+    function onScanSuccess(decodedText) {
         stopScanner();
         input.value = decodedText;
-        submitBtn.click();
+        form.dispatchEvent(new Event('submit'));
     }
 
-    function onScanFailure(error) {
-        // Ignore scan failures - normal when no QR in view
-    }
-
-    // Start camera when button clicked
     startCameraBtn.addEventListener('click', function() {
         startScanner();
     });
 
-    var processingQR = false;
-
     form.addEventListener('submit', function (event) {
         event.preventDefault();
-
         if (processingQR) return;
         processingQR = true;
 
         stopScanner();
         startCameraBtn.style.display = 'inline-flex';
-
         submitBtn.disabled = true;
         submitBtn.textContent = 'Проверяем...';
         exitBtn.hidden = true;
         resultBox.hidden = true;
 
-        var formData = new FormData(form);
-
         fetch(form.action, {
             method: 'POST',
-            body: formData,
+            body: new FormData(form),
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
-        .then(function (response) { return response.json(); })
+        .then(function (r) { return r.json(); })
         .then(function (data) {
             showResult(data.success, data.message);
             if (data.success && data.entry_id) {
@@ -153,8 +139,7 @@
 
     exitBtn.addEventListener('click', function () {
         var entryId = exitBtn.dataset.entryId;
-        if (!entryId) { return; }
-
+        if (!entryId) return;
         exitBtn.disabled = true;
         exitBtn.textContent = 'Фиксируем выход...';
 
@@ -165,13 +150,13 @@
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(function (response) { return response.json(); })
+        .then(function (r) { return r.json(); })
         .then(function (data) {
             showResult(data.success, data.message);
             exitBtn.hidden = true;
         })
         .catch(function () {
-            showResult(false, 'Не удалось зафиксировать выход. Попробуйте ещё раз.');
+            showResult(false, 'Не удалось зафиксировать выход.');
         })
         .finally(function () {
             exitBtn.disabled = false;
