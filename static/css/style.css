@@ -161,7 +161,6 @@ select {
 
 .hero-section {
   position: relative;
-  min-height: 100vh;
   padding-top: 120px;
   padding-bottom: 60px;
   overflow: hidden;
@@ -176,26 +175,6 @@ select {
   align-items: start;
   max-width: 1120px;
   margin: 0 auto;
-  padding-bottom: 220px;
-}
-
-.hero-search-panel {
-  position: absolute;
-  left: 50%;
-  bottom: 3rem;
-  transform: translateX(-50%);
-  width: calc(100% - 4rem);
-  max-width: 1120px;
-  background: rgba(12, 17, 34, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(24px);
-  border-radius: 24px;
-  padding: 1.4rem 1.6rem;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 1rem;
-  z-index: 5;
 }
 
 .hero-background {
@@ -268,7 +247,7 @@ select {
 .hero-search-panel {
   width: 100%;
   max-width: 1120px;
-  margin: 5rem auto 0;
+  margin: 2rem auto 0;
   background: rgba(12, 17, 34, 0.88);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 40px 90px rgba(0, 0, 0, 0.35);
@@ -648,21 +627,19 @@ select {
 
 @media (max-width: 992px) {
   .hero-search-panel {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .search-action {
-    grid-column: span 2;
+    position: relative;
     width: 100%;
-  }
-}
-
-@media (max-width: 640px) {
-  .hero-search-panel {
-    grid-template-columns: 1fr;
-  }
-  .search-action {
-    grid-column: span 1;
-    width: 100%;
+    max-width: 1120px;
+    margin: 3rem auto 0;
+    background: rgba(12, 17, 34, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 40px 90px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(24px);
+    border-radius: 24px;
+    padding: 1.4rem 1.6rem;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1rem;
   }
 }
 
@@ -694,18 +671,6 @@ select {
   .hero-section {
     padding-top: 100px;
     padding-bottom: 180px;
-  }
-  .hero-inner {
-    padding-bottom: 280px;
-  }
-  .hero-search-panel {
-    position: relative;
-    left: auto;
-    bottom: auto;
-    transform: none;
-    width: 100%;
-    max-width: none;
-    margin-top: 2rem;
   }
   .hero-image {
     min-height: 280px;
