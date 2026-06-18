@@ -1059,12 +1059,16 @@ select {
 
 
 .alerts-stack {
-  position: relative;
-  z-index: 30;
+  position: fixed;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
   display: grid;
   gap: 0.75rem;
-  padding-top: 110px;
-  padding-bottom: 0;
+  width: auto;
+  max-width: 520px;
+  pointer-events: none;
 }
 
 .alert-card {
@@ -1078,6 +1082,19 @@ select {
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
   font-size: 0.95rem;
   color: var(--text-light);
+  pointer-events: auto;
+  animation: alert-slide-in 0.3s ease;
+}
+
+@keyframes alert-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .alert-icon {
