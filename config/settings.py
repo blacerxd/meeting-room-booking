@@ -256,3 +256,7 @@ LOGGING = {
 
 ADMINS = [('Admin', 'admin@example.com')]
 SERVER_EMAIL = 'errors@example.com'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+

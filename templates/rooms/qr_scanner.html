@@ -8,34 +8,56 @@
         <div class="section-header">
             <div class="section-subtitle">Вход в комнату</div>
             <h1 class="section-heading">Сканируйте QR и заходите в переговорную</h1>
-            <p class="text-secondary mt-3">Наведите камеру на QR-код комнаты или введите идентификатор вручную.</p>
+            <p class="text-secondary mt-3">Наведите камеру на QR-код или введите идентификатор вручную.</p>
         </div>
 
         <div class="scanner-panel">
-            <div id="qr-reader" style="width:100%;border-radius:16px;overflow:hidden;min-height:300px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;">
-                <p style="color:var(--text-muted);">Нажмите кнопку ниже для запуска камеры</p>
+
+            <div id="qr-viewport">
+                <!-- Сюда библиотека рендерит видео -->
+                <div id="qr-reader"></div>
+
+                <!-- Idle заглушка -->
+                <div id="qr-idle">
+                    <i class="fas fa-qrcode"></i>
+                    <p>Камера не активна</p>
+                </div>
+
+                <!-- Рамка поверх видео -->
+                <div id="qr-frame" hidden>
+                    <div class="frame-corner tl"></div>
+                    <div class="frame-corner tr"></div>
+                    <div class="frame-corner bl"></div>
+                    <div class="frame-corner br"></div>
+                </div>
             </div>
 
-            <div style="text-align:center;margin:1rem 0;">
+            <div id="camera-controls">
                 <button type="button" id="start-camera-btn" class="hero-cta">
                     <i class="fas fa-camera"></i> Запустить камеру
                 </button>
+                <button type="button" id="stop-camera-btn" class="btn-ghost-cta" hidden>
+                    <i class="fas fa-stop"></i> Остановить
+                </button>
             </div>
 
-            <div style="text-align:center;margin:1rem 0;color:var(--text-muted);">— или введите вручную —</div>
+            <div class="scanner-divider">— или введите вручную —</div>
 
             <form id="qr-form" method="post" action="{% url 'rooms:process_qr' %}">
                 {% csrf_token %}
                 <label for="qr_code" class="form-label">QR-код комнаты</label>
-                <input id="qr_code" name="qr_code" type="text" placeholder="Введите QR идентификатор" required>
+                <input id="qr_code" name="qr_code" type="text" placeholder="Введите QR идентификатор" autocomplete="off" required>
                 <button type="submit" id="qr-submit-btn">Проверить доступ</button>
             </form>
 
-            <div id="qr-result" hidden style="margin-top:1.4rem;padding:1.2rem 1.4rem;border-radius:16px;text-align:center;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);">
-                <div class="qr-result-icon" style="font-size:2rem;margin-bottom:0.5rem;"><i class="fas"></i></div>
-                <p class="qr-result-message" style="margin:0;color:var(--text-light);"></p>
-                <button type="button" id="qr-exit-btn" class="btn-ghost-cta" hidden style="margin-top:1rem;">Зафиксировать выход</button>
+            <div id="qr-result" hidden>
+                <div class="qr-result-icon"><i class="fas"></i></div>
+                <p class="qr-result-message"></p>
+                <button type="button" id="qr-exit-btn" class="btn-ghost-cta" hidden>
+                    <i class="fas fa-right-from-bracket"></i> Зафиксировать выход
+                </button>
             </div>
+
         </div>
     </div>
 </section>
@@ -45,69 +67,66 @@
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
 (function () {
-    var form = document.getElementById('qr-form');
-    var input = document.getElementById('qr_code');
-    var submitBtn = document.getElementById('qr-submit-btn');
-    var resultBox = document.getElementById('qr-result');
-    var resultIcon = resultBox.querySelector('.qr-result-icon i');
-    var resultMessage = resultBox.querySelector('.qr-result-message');
-    var exitBtn = document.getElementById('qr-exit-btn');
-    var startCameraBtn = document.getElementById('start-camera-btn');
-    var html5QrcodeScanner = null;
-    var scannerActive = false;
-    var processingQR = false;
+    var form        = document.getElementById('qr-form');
+    var input       = document.getElementById('qr_code');
+    var submitBtn   = document.getElementById('qr-submit-btn');
+    var resultBox   = document.getElementById('qr-result');
+    var resultIcon  = resultBox.querySelector('.qr-result-icon i');
+    var resultMsg   = resultBox.querySelector('.qr-result-message');
+    var exitBtn     = document.getElementById('qr-exit-btn');
+    var startBtn    = document.getElementById('start-camera-btn');
+    var stopBtn     = document.getElementById('stop-camera-btn');
+    var idleEl      = document.getElementById('qr-idle');
+    var frameEl     = document.getElementById('qr-frame');
 
-    function showResult(success, message) {
+    var scanner = null;
+    var active  = false;
+    var busy    = false;
+
+    function showResult(success, msg) {
         resultBox.hidden = false;
-        resultBox.style.borderColor = success ? 'rgba(61,220,151,0.3)' : 'rgba(255,92,122,0.3)';
-        resultBox.style.background = success ? 'rgba(61,220,151,0.1)' : 'rgba(255,92,122,0.1)';
+        resultBox.className = success ? 'qr-result-success' : 'qr-result-error';
         resultIcon.className = success ? 'fas fa-circle-check' : 'fas fa-circle-exclamation';
-        resultIcon.style.color = success ? 'var(--success)' : 'var(--danger)';
-        resultMessage.textContent = message;
+        resultMsg.textContent = msg;
+    }
+
+    function setActive(on) {
+        active = on;
+        idleEl.hidden  = on;
+        frameEl.hidden = !on;
+        startBtn.hidden = on;
+        stopBtn.hidden  = !on;
     }
 
     function stopScanner() {
-        if (html5QrcodeScanner && scannerActive) {
-            html5QrcodeScanner.stop().catch(function(err) {
-                console.warn('Scanner stop warning:', err);
-            });
-            scannerActive = false;
+        if (scanner && active) {
+            scanner.stop().catch(function(){}).finally(function(){ setActive(false); });
         }
     }
 
-    function startScanner() {
-        if (scannerActive) return;
-        try {
-            html5QrcodeScanner = new Html5QrcodeScanner(
-                "qr-reader",
-                { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
-                false
+    startBtn.addEventListener('click', function () {
+        if (active) return;
+        scanner = new Html5Qrcode('qr-reader');
+        Html5Qrcode.getCameras().then(function (cams) {
+            if (!cams || !cams.length) { showResult(false, 'Камера не найдена.'); return; }
+            var camId = cams[cams.length - 1].id;
+            return scanner.start(
+                camId,
+                { fps: 10, qrbox: { width: 200, height: 200 } },
+                function (text) { stopScanner(); input.value = text; form.dispatchEvent(new Event('submit')); },
+                function () {}
             );
-            html5QrcodeScanner.render(onScanSuccess, function(){});
-            scannerActive = true;
-            startCameraBtn.style.display = 'none';
-        } catch (e) {
-            showResult(false, 'Ошибка запуска камеры: ' + e.message);
-        }
-    }
-
-    function onScanSuccess(decodedText) {
-        stopScanner();
-        input.value = decodedText;
-        form.dispatchEvent(new Event('submit'));
-    }
-
-    startCameraBtn.addEventListener('click', function() {
-        startScanner();
+        }).then(function () { setActive(true); })
+          .catch(function () { showResult(false, 'Нет доступа к камере. Разрешите доступ в браузере.'); });
     });
 
-    form.addEventListener('submit', function (event) {
-        event.preventDefault();
-        if (processingQR) return;
-        processingQR = true;
+    stopBtn.addEventListener('click', stopScanner);
 
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (busy) return;
+        busy = true;
         stopScanner();
-        startCameraBtn.style.display = 'inline-flex';
         submitBtn.disabled = true;
         submitBtn.textContent = 'Проверяем...';
         exitBtn.hidden = true;
@@ -119,50 +138,124 @@
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
         .then(function (r) { return r.json(); })
-        .then(function (data) {
-            showResult(data.success, data.message);
-            if (data.success && data.entry_id) {
-                exitBtn.hidden = false;
-                exitBtn.dataset.entryId = data.entry_id;
-                input.value = '';
-            }
+        .then(function (d) {
+            showResult(d.success, d.message);
+            if (d.success && d.entry_id) { exitBtn.hidden = false; exitBtn.dataset.entryId = d.entry_id; input.value = ''; }
         })
-        .catch(function () {
-            showResult(false, 'Не удалось связаться с сервером. Попробуйте ещё раз.');
-        })
-        .finally(function () {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Проверить доступ';
-            processingQR = false;
-        });
+        .catch(function () { showResult(false, 'Не удалось связаться с сервером.'); })
+        .finally(function () { submitBtn.disabled = false; submitBtn.textContent = 'Проверить доступ'; busy = false; });
     });
 
     exitBtn.addEventListener('click', function () {
-        var entryId = exitBtn.dataset.entryId;
-        if (!entryId) return;
-        exitBtn.disabled = true;
-        exitBtn.textContent = 'Фиксируем выход...';
-
-        fetch('/rooms/exit/' + entryId + '/', {
+        var id = exitBtn.dataset.entryId;
+        if (!id) return;
+        exitBtn.disabled = true; exitBtn.textContent = 'Фиксируем...';
+        fetch('/rooms/exit/' + id + '/', {
             method: 'POST',
-            headers: {
-                'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
-                'X-Requested-With': 'XMLHttpRequest'
-            }
+            headers: { 'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value, 'X-Requested-With': 'XMLHttpRequest' }
         })
         .then(function (r) { return r.json(); })
-        .then(function (data) {
-            showResult(data.success, data.message);
-            exitBtn.hidden = true;
-        })
-        .catch(function () {
-            showResult(false, 'Не удалось зафиксировать выход.');
-        })
-        .finally(function () {
-            exitBtn.disabled = false;
-            exitBtn.textContent = 'Зафиксировать выход';
-        });
+        .then(function (d) { showResult(d.success, d.message); exitBtn.hidden = true; })
+        .catch(function () { showResult(false, 'Не удалось зафиксировать выход.'); })
+        .finally(function () { exitBtn.disabled = false; exitBtn.textContent = 'Зафиксировать выход'; });
     });
 })();
 </script>
+
+<style>
+/* Скрываем лишние элементы стандартного UI библиотеки */
+#qr-reader > img,
+#qr-reader > div[style*="text-align: center"] { display: none !important; }
+
+#qr-viewport {
+    position: relative;
+    width: 100%;
+    border-radius: 20px;
+    overflow: hidden;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 1.2rem;
+    min-height: 300px;
+}
+
+#qr-reader {
+    width: 100% !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+#qr-reader video {
+    width: 100% !important;
+    max-height: 360px;
+    object-fit: cover;
+    display: block;
+}
+
+#qr-idle {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+#qr-idle i { font-size: 3rem; opacity: 0.3; }
+
+#qr-frame {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.frame-corner {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    border-color: var(--accent);
+    border-style: solid;
+}
+
+.frame-corner.tl { top: calc(50% - 100px); left: calc(50% - 100px); border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+.frame-corner.tr { top: calc(50% - 100px); right: calc(50% - 100px); border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+.frame-corner.bl { bottom: calc(50% - 100px); left: calc(50% - 100px); border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+.frame-corner.br { bottom: calc(50% - 100px); right: calc(50% - 100px); border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+
+#camera-controls {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 1.2rem;
+}
+
+#camera-controls button { flex: 1; }
+
+.scanner-divider {
+    text-align: center;
+    margin: 0.2rem 0 1.2rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+#qr-result {
+    margin-top: 1.4rem;
+    padding: 1.4rem;
+    border-radius: 16px;
+    text-align: center;
+    display: grid;
+    gap: 0.8rem;
+    justify-items: center;
+}
+
+.qr-result-success { border: 1px solid rgba(61,220,151,0.3); background: rgba(61,220,151,0.1); }
+.qr-result-success .qr-result-icon i { color: var(--success); font-size: 2rem; }
+.qr-result-error { border: 1px solid rgba(255,92,122,0.3); background: rgba(255,92,122,0.1); }
+.qr-result-error .qr-result-icon i { color: var(--danger); font-size: 2rem; }
+.qr-result-message { margin: 0; }
+</style>
 {% endblock %}
