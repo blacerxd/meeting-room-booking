@@ -50,6 +50,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'config.middleware.RequestLoggingMiddleware',
+    'config.middleware.ErrorLoggingMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -140,26 +141,20 @@ LOGOUT_REDIRECT_URL = '/'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'no-reply@meetflow.local'
 
-# logging configuration
-BASE_DIR = Path(__file__).resolve().parent.parent
-
+# Logging configuration
 LOGS_DIR = BASE_DIR / 'logs'
 LOGS_DIR.mkdir(exist_ok=True)
 
-Logging = {
+LOGGING = {
     'version': 1,
-    'disable existing loggers': False,
+    'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
             'format': '[{asctime}] {levelname} {name} {module}.{funcName}:{lineno} - {message}',
             'style': '{',
         },
         'simple': {
-            'format': '[{asctime}] {levelname}-{message}',
-            'style': '{',
-        },
-        'json': {
-            'format': '{{"time": "{asctime}", "level": "{levelname}", "logger": "{name}", "message": "{message}"}}',
+            'format': '[{asctime}] {levelname} - {message}',
             'style': '{',
         },
     },
@@ -181,6 +176,15 @@ Logging = {
         'file_general': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOGS_DIR / 'general.log',
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 10,
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
+        },
+        'file_errors': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': LOGS_DIR / 'errors.log',
             'maxBytes': 1024 * 1024 * 5,
             'backupCount': 10,
@@ -189,7 +193,7 @@ Logging = {
         },
         'file_bookings': {
             'level': 'INFO',
-            'class': 'logging.handlers.AdminEmailHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': LOGS_DIR / 'bookings.log',
             'maxBytes': 1024 * 1024 * 5,
             'backupCount': 5,
@@ -210,11 +214,11 @@ Logging = {
             'propagate': False,
         },
         'django.request': {
-            'handlers': ['file_general', 'mail_admins'],
+            'handlers': ['file_errors', 'mail_admins'],
             'level': 'ERROR',
             'propagate': False,
         },
-        'django_security': {
+        'django.security': {
             'handlers': ['file_errors', 'mail_admins'],
             'level': 'WARNING',
             'propagate': False,
@@ -225,7 +229,7 @@ Logging = {
             'propagate': False,
         },
         'rooms': {
-            'handlers': ['console', 'file_general'],
+            'handlers': ['console', 'file_general', 'file_errors'],
             'level': 'DEBUG',
             'propagate': False,
         },
@@ -242,5 +246,5 @@ Logging = {
     },
 }
 
-ADMINS = [{'Admin', 'admin@example.com'}]
+ADMINS = [('Admin', 'admin@example.com')]
 SERVER_EMAIL = 'errors@example.com'

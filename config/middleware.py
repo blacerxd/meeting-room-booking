@@ -1,9 +1,13 @@
 import logging
 import time
+import traceback
 
 logger = logging.getLogger('django.request')
 
+
 class RequestLoggingMiddleware:
+    """Middleware для логирования HTTP запросов с кодом >= 400"""
+    
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -14,18 +18,38 @@ class RequestLoggingMiddleware:
         
         if response.status_code >= 400:
             logger.warning(
-                f"{request.method} {request.path} - "
-                f"Status: {response.status_code} - "
-                f"User: {request.user} - "
-                f"Time: {duration:.2f}s"
+                "%s %s - Status: %d - User: %s - Time: %.2fs",
+                request.method,
+                request.path,
+                response.status_code,
+                request.user,
+                duration,
             )
         
         return response
 
-    def process_exception(self, request, exception):
-        logger.error(
-            f"Исключение в {request.method} {request.path}: {exception}",
-            exc_info=True,
-            extra={'request': request}
-        )
-        return None
+
+class ErrorLoggingMiddleware:
+    """Middleware для перехвата и логирования всех необработанных исключений"""
+    
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        try:
+            response = self.get_response(request)
+        except Exception as exc:
+            logger = logging.getLogger('django.request')
+            logger.error(
+                "Unhandled exception in %s %s: %s",
+                request.method,
+                request.path,
+                str(exc),
+                exc_info=True,
+                extra={
+                    'request': request,
+                    'stack': traceback.format_exc(),
+                }
+            )
+            raise
+        return response
