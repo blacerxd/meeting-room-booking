@@ -341,9 +341,29 @@ select {
   color: #f5f7ff;
 }
 
+.search-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: transparent;
+  border: none;
+  color: var(--text-light);
+  padding: 0;
+  font-size: 0.95rem;
+  cursor: pointer;
+  width: 100%;
+  min-width: 120px;
+}
+
+.search-select option {
+  background: #12192e;
+  color: var(--text-light);
+}
+
 .search-chevron {
   margin-left: auto;
   color: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
 }
 
 .search-card-item:has(select) .search-chevron {

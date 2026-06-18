@@ -49,33 +49,63 @@ def process_qr_code(request):
             'message': 'Ошибка при поиске комнаты'
         })
 
-    # Проверяем, есть ли у пользователя доступ к комнате
-    if not has_room_access(request.user, room):
-        logger.warning("User %s denied access to room %s (qr_code=%s)", request.user, room.name, qr_code)
+    # Для суперпользователей — доступ без проверок
+    if request.user.is_superuser:
+        booking = None
+        # Создаём запись о входе
+        try:
+            entry = RoomEntry.objects.create(
+                user=request.user,
+                room=room,
+                booking=None,
+                is_authorized=True,
+            )
+            logger.info("Superuser %s entered room %s (entry #%d)", request.user, room.name, entry.id)
+        except (DatabaseError, ValidationError) as e:
+            logger.error("Error creating room entry for superuser %s in room %s: %s", request.user, room.name, e, exc_info=True)
+            return JsonResponse({'success': False, 'message': 'Ошибка при регистрации входа'})
         return JsonResponse({
-            'success': False,
-            'message': 'У вас нет доступа к этой комнате'
+            'success': True,
+            'message': f'Добро пожаловать в {room.name}!',
+            'room': {'id': room.id, 'name': room.name, 'capacity': room.capacity, 'location': room.location},
+            'entry_id': entry.id,
         })
 
-    # Проверяем, есть ли активное бронирование (ОБЯЗАТЕЛЬНО для не-суперпользователей)
-    if not request.user.is_superuser:
+    # Сначала проверяем бронирование (включая доступ за 10 минут до начала)
+    try:
+        booking = get_active_booking(request.user, room)
+    except DatabaseError as e:
+        logger.error("Database error checking active booking for user %s in room %s: %s", request.user, room.name, e, exc_info=True)
+        return JsonResponse({'success': False, 'message': 'Ошибка при проверке бронирования'})
+
+    # Если есть бронирование — доступ разрешён
+    if booking:
         try:
-            booking = get_active_booking(request.user, room)
-        except DatabaseError as e:
-            logger.error("Database error checking active booking for user %s in room %s: %s", request.user, room.name, e, exc_info=True)
-            return JsonResponse({
-                'success': False,
-                'message': 'Ошибка при проверке бронирования'
-            })
-        
-        if not booking:
-            logger.warning("User %s tried to access room %s without active booking", request.user, room.name)
-            return JsonResponse({
-                'success': False,
-                'message': 'У вас нет активного бронирования для этой комнаты. Забронируйте комнату сначала.'
-            })
+            entry = RoomEntry.objects.create(
+                user=request.user,
+                room=room,
+                booking=booking,
+                is_authorized=True,
+            )
+            logger.info("User %s entered room %s via booking #%d (entry #%d)", request.user, room.name, booking.id, entry.id)
+        except (DatabaseError, ValidationError) as e:
+            logger.error("Error creating room entry for user %s in room %s: %s", request.user, room.name, e, exc_info=True)
+            return JsonResponse({'success': False, 'message': 'Ошибка при регистрации входа'})
+        return JsonResponse({
+            'success': True,
+            'message': f'Добро пожаловать в {room.name}!',
+            'room': {'id': room.id, 'name': room.name, 'capacity': room.capacity, 'location': room.location},
+            'entry_id': entry.id,
+        })
+
+    # Если бронирования нет — проверяем политику доступа
+    if not has_room_access(request.user, room):
+        logger.warning("User %s denied access to room %s — no active booking and no access policy", request.user, room.name)
+        return JsonResponse({
+            'success': False,
+            'message': 'У вас нет доступа к этой комнате. Забронируйте комнату сначала.'
+        })
     else:
-        # Суперпользователь может входить без бронирования
         booking = None
 
     try:
@@ -178,14 +208,14 @@ def has_room_access(user, room):
 
 def get_active_booking(user, room):
     """Получает активное бронирование пользователя в комнате.
-    Доступ открывается за 30 минут до начала бронирования."""
+    Доступ открывается за 10 минут до начала бронирования."""
     now = timezone.now()
     from django.utils.timezone import timedelta
     try:
-        # Разрешаем вход за 30 минут до начала бронирования
-        # start_time <= now + 30min  → можно войти за 30 мин до начала
+        # Разрешаем вход за 10 минут до начала бронирования
+        # start_time <= now + 10min  → можно войти за 10 мин до начала
         # end_time >= now            → бронирование ещё не закончилось
-        early_access_threshold = now + timedelta(minutes=30)
+        early_access_threshold = now + timedelta(minutes=10)
         logger.debug(
             "Checking booking for user %s in room %s: now=%s, early_access_threshold=%s",
             user, room.name, now, early_access_threshold
@@ -203,7 +233,7 @@ def get_active_booking(user, room):
 
     if booking:
         logger.info(
-            "User %s can access room %s: booking #%d from %s to %s (early_access=30min)",
+            "User %s can access room %s: booking #%d from %s to %s (early_access=10min)",
             user, room.name, booking.id, booking.start_time, booking.end_time
         )
         try:
@@ -244,7 +274,10 @@ def room_list(request):
             logger.warning("User %s provided invalid capacity filter: %s", request.user, capacity)
 
     if q:
-        rooms = rooms.filter(models.Q(name__icontains=q) | models.Q(description__icontains=q))
+        rooms = rooms.filter(
+            models.Q(name__icontains=q) |
+            models.Q(description__icontains=q)
+        )
         logger.debug("User %s searched rooms with query: %s", request.user, q)
 
     available_rooms = []
@@ -259,11 +292,11 @@ def room_list(request):
         if start_dt and end_dt:
             from django.utils.timezone import timedelta
             try:
-                # 30-min buffer for conflict check
+                # 10-min buffer for conflict check
                 conflict = Booking.objects.filter(
                     room=room,
-                    start_time__lt=end_dt + timedelta(minutes=30),
-                    end_time__gt=start_dt - timedelta(minutes=30),
+                    start_time__lt=end_dt + timedelta(minutes=10),
+                    end_time__gt=start_dt - timedelta(minutes=10),
                     status__in=['confirmed', 'active']
                 ).exists()
             except DatabaseError as e:

@@ -103,11 +103,11 @@ def booking_create(request, room_id):
 
         from django.utils.timezone import timedelta
         try:
-            # Check with 30-min buffer: existing booking end_time + 30min > start_dt
+            # Check with 10-min buffer: existing booking end_time + 10min > start_dt
             conflict = Booking.objects.filter(
                 room=room,
                 start_time__lt=end_dt,
-                end_time__gt=start_dt - timedelta(minutes=30),
+                end_time__gt=start_dt - timedelta(minutes=10),
                 status__in=['pending', 'confirmed', 'active'],
             ).exists()
         except DatabaseError as e:
@@ -117,7 +117,7 @@ def booking_create(request, room_id):
 
         if conflict:
             logger.info("Booking conflict for user %s on room %s: %s - %s", request.user, room.name, start_dt, end_dt)
-            messages.error(request, 'Комната занята. Между бронированиями должен быть перерыв 30 минут.')
+            messages.error(request, 'Комната занята. Между бронированиями должен быть перерыв 10 минут.')
             return redirect('bookings:booking_create', room_id=room.id)
 
         try:
