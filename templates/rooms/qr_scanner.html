@@ -8,10 +8,22 @@
         <div class="section-header">
             <div class="section-subtitle">Вход в комнату</div>
             <h1 class="section-heading">Сканируйте QR и заходите в переговорную</h1>
-            <p class="text-secondary mt-3">Введите идентификатор QR-кода или используйте реальное устройство для доступа в комнату.</p>
+            <p class="text-secondary mt-3">Наведите камеру на QR-код комнаты или введите идентификатор вручную.</p>
         </div>
 
         <div class="scanner-panel">
+            <div id="qr-reader" style="width: 100%; border-radius: 16px; overflow: hidden; min-height: 300px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center;">
+                <p style="color: var(--text-muted);">Нажмите кнопку ниже для запуска камеры</p>
+            </div>
+            
+            <div style="text-align: center; margin: 1rem 0;">
+                <button type="button" id="start-camera-btn" class="hero-cta">
+                    <i class="fas fa-camera"></i> Запустить камеру
+                </button>
+            </div>
+
+            <div style="text-align: center; margin: 1rem 0; color: var(--text-muted);">— или введите вручную —</div>
+
             <form id="qr-form" method="post" action="{% url 'rooms:process_qr' %}">
                 {% csrf_token %}
                 <label for="qr_code" class="form-label">QR-код комнаты</label>
@@ -30,6 +42,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
 (function () {
     var form = document.getElementById('qr-form');
@@ -39,6 +52,9 @@
     var resultIcon = resultBox.querySelector('.qr-result-icon i');
     var resultMessage = resultBox.querySelector('.qr-result-message');
     var exitBtn = document.getElementById('qr-exit-btn');
+    var startCameraBtn = document.getElementById('start-camera-btn');
+    var html5QrcodeScanner = null;
+    var scannerActive = false;
 
     function showResult(success, message) {
         resultBox.hidden = false;
@@ -48,11 +64,68 @@
         resultMessage.textContent = message;
     }
 
+    function stopScanner() {
+        if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
+            html5QrcodeScanner.stop().catch(function(err) {
+                console.warn('Scanner stop warning:', err);
+            });
+            scannerActive = false;
+        }
+    }
+
+    function startScanner() {
+        if (scannerActive) return;
+        
+        try {
+            html5QrcodeScanner = new Html5QrcodeScanner(
+                "qr-reader",
+                { 
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 },
+                    aspectRatio: 1.0
+                },
+                false
+            );
+            
+            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+            scannerActive = true;
+            startCameraBtn.style.display = 'none';
+        } catch (e) {
+            console.error('Scanner error:', e);
+            showResult(false, 'Ошибка запуска камеры: ' + e.message);
+        }
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+        stopScanner();
+        input.value = decodedText;
+        submitBtn.click();
+    }
+
+    function onScanFailure(error) {
+        // Ignore scan failures - normal when no QR in view
+    }
+
+    // Start camera when button clicked
+    startCameraBtn.addEventListener('click', function() {
+        startScanner();
+    });
+
+    var processingQR = false;
+    
     form.addEventListener('submit', function (event) {
         event.preventDefault();
+        
+        if (processingQR) return;
+        processingQR = true;
+        
+        stopScanner();
+        startCameraBtn.style.display = 'inline-flex';
+        
         submitBtn.disabled = true;
         submitBtn.textContent = 'Проверяем...';
         exitBtn.hidden = true;
+        resultBox.hidden = true;
 
         var formData = new FormData(form);
 
@@ -76,6 +149,7 @@
         .finally(function () {
             submitBtn.disabled = false;
             submitBtn.textContent = 'Проверить доступ';
+            processingQR = false;
         });
     });
 

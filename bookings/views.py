@@ -89,16 +89,25 @@ def booking_create(request, room_id):
             messages.error(request, 'Время начала должно быть раньше времени окончания')
             return redirect('bookings:booking_create', room_id=room.id)
 
+        # Make datetime timezone-aware for comparison
+        from django.utils.timezone import make_aware
+        if start_dt.tzinfo is None:
+            start_dt = make_aware(start_dt)
+        if end_dt.tzinfo is None:
+            end_dt = make_aware(end_dt)
+        
         if start_dt <= timezone.now():
             logger.warning("User %s tried to book in the past: start=%s, now=%s", request.user, start_dt, timezone.now())
             messages.error(request, 'Нельзя бронировать на прошедшее время')
             return redirect('bookings:booking_create', room_id=room.id)
 
+        from django.utils.timezone import timedelta
         try:
+            # Check with 30-min buffer: existing booking end_time + 30min > start_dt
             conflict = Booking.objects.filter(
                 room=room,
                 start_time__lt=end_dt,
-                end_time__gt=start_dt,
+                end_time__gt=start_dt - timedelta(minutes=30),
                 status__in=['pending', 'confirmed', 'active'],
             ).exists()
         except DatabaseError as e:
@@ -108,7 +117,7 @@ def booking_create(request, room_id):
 
         if conflict:
             logger.info("Booking conflict for user %s on room %s: %s - %s", request.user, room.name, start_dt, end_dt)
-            messages.error(request, 'В выбранный интервал уже есть бронирование')
+            messages.error(request, 'Комната занята. Между бронированиями должен быть перерыв 30 минут.')
             return redirect('bookings:booking_create', room_id=room.id)
 
         try:

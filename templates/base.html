@@ -37,6 +37,7 @@
                 <div class="nav-links">
                     <a href="{% url 'home' %}">Главная</a>
                     <a href="{% url 'rooms:room_list' %}">Переговорные</a>
+                    <a href="{% url 'rooms:scanner' %}">QR Сканер</a>
                     <a href="{% url 'about' %}">О сервисе</a>
                     <a href="{% url 'contacts' %}">Контакты</a>
                     {% if user.is_authenticated %}
