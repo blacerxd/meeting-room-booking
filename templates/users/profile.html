@@ -5,7 +5,7 @@
 {% block content %}
 <section class="page-section">
   <div class="container">
-    <div class="card-panel" style="max-width:720px;margin:0 auto;">
+    <div class="card-panel card-medium">
       <h3>Профиль</h3>
       <p>Имя: {{ request.user.get_full_name|default:request.user.username }}</p>
       <p>Email: {{ request.user.email }}</p>

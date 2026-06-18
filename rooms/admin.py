@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from .models import Room
 
 
@@ -11,6 +12,7 @@ class RoomAdmin(admin.ModelAdmin):
         'location',
         'status',
         'qr_code_id',
+        'image_preview',
     )
 
     fieldsets = (
@@ -20,6 +22,7 @@ class RoomAdmin(admin.ModelAdmin):
                 'description',
                 'capacity',
                 'location',
+                'image',
             )
         }),
         ('QR код', {
@@ -45,6 +48,7 @@ class RoomAdmin(admin.ModelAdmin):
         'qr_code_id',
         'created_at',
         'updated_at',
+        'image_preview',
     )
 
     search_fields = (
@@ -59,3 +63,10 @@ class RoomAdmin(admin.ModelAdmin):
     )
 
     ordering = ('name',)
+
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" style="max-height: 60px; border-radius: 8px; object-fit: cover;" />', obj.image.url)
+        return format_html('<span style="color: #8d98b6;">Нет фото</span>')
+    image_preview.short_description = 'Фото'
+    image_preview.allow_tags = True

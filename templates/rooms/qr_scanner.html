@@ -3,6 +3,18 @@
 {% block title %}QR Сканер — MeetFlow{% endblock %}
 
 {% block content %}
+<<<<<<< HEAD
+<section class='page-section'>
+    <div class='container'>
+        <div class='section-header'>
+            <div class='section-subtitle'>Вход в комнату</div>
+            <h1 class='section-heading'>Сканируйте QR и заходите в переговорную</h1>
+            <p class='text-secondary mt-3'>Введите идентификатор QR-кода или используйте реальное устройство для доступа в комнату.</p>
+        </div>
+
+        <div class='scanner-panel'>
+            <form method='post' action="{% url 'rooms:process_qr' %}" data-qr-form>
+=======
 <section class="page-section">
     <div class="container">
         <div class="section-header">
@@ -25,17 +37,13 @@
             <div style="text-align: center; margin: 1rem 0; color: var(--text-muted);">— или введите вручную —</div>
 
             <form id="qr-form" method="post" action="{% url 'rooms:process_qr' %}">
+>>>>>>> 43abe7642129155a9f9fd02a7ea8c5b437a154c3
                 {% csrf_token %}
-                <label for="qr_code" class="form-label">QR-код комнаты</label>
-                <input id="qr_code" name="qr_code" type="text" placeholder="Введите QR идентификатор" autocomplete="off" required>
-                <button type="submit" id="qr-submit-btn">Проверить доступ</button>
+                <label for='qr_code' class='form-label'>QR-код комнаты</label>
+                <input id='qr_code' name='qr_code' type='text' placeholder='Введите QR идентификатор' required>
+                <button type='submit' class='hero-cta'>Проверить доступ</button>
             </form>
-
-            <div id="qr-result" class="qr-result" hidden>
-                <div class="qr-result-icon"><i class="fas"></i></div>
-                <p class="qr-result-message"></p>
-                <button type="button" id="qr-exit-btn" class="btn-ghost-cta" hidden>Зафиксировать выход</button>
-            </div>
+            <div class="scanner-result" data-scanner-result></div>
         </div>
     </div>
 </section>
@@ -44,6 +52,12 @@
 {% block extra_js %}
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
+<<<<<<< HEAD
+  window.MeetFlow = window.MeetFlow || {};
+  window.MeetFlow.onEntryCreated = function (data) {
+    const resultBox = document.querySelector('[data-scanner-result]');
+    if (!resultBox || !data.entry_id) return;
+=======
 (function () {
     var form = document.getElementById('qr-form');
     var input = document.getElementById('qr_code');
@@ -55,15 +69,21 @@
     var startCameraBtn = document.getElementById('start-camera-btn');
     var html5QrcodeScanner = null;
     var scannerActive = false;
+>>>>>>> 43abe7642129155a9f9fd02a7ea8c5b437a154c3
 
-    function showResult(success, message) {
-        resultBox.hidden = false;
-        resultBox.classList.remove('qr-result-success', 'qr-result-error');
-        resultBox.classList.add(success ? 'qr-result-success' : 'qr-result-error');
-        resultIcon.className = success ? 'fas fa-circle-check' : 'fas fa-circle-exclamation';
-        resultMessage.textContent = message;
-    }
+    const exitUrl = '{% url "rooms:exit_room" 0 %}'.replace('0', data.entry_id);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn-ghost-cta mt-3';
+    btn.textContent = 'Выйти из комнаты';
+    btn.setAttribute('data-exit-entry', data.entry_id);
+    btn.setAttribute('data-exit-url', exitUrl);
 
+<<<<<<< HEAD
+    resultBox.appendChild(document.createElement('br'));
+    resultBox.appendChild(btn);
+  };
+=======
     function stopScanner() {
         if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
             html5QrcodeScanner.stop().catch(function(err) {
@@ -181,5 +201,6 @@
         });
     });
 })();
+>>>>>>> 43abe7642129155a9f9fd02a7ea8c5b437a154c3
 </script>
 {% endblock %}

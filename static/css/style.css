@@ -167,9 +167,20 @@ select {
 .hero-section {
   position: relative;
   min-height: 100vh;
-  padding-top: 140px;
+  padding-top: 120px;
   padding-bottom: 120px;
   overflow: hidden;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: start;
+  max-width: 1120px;
+  margin: 0 auto;
 }
 
 .hero-background {
@@ -188,15 +199,6 @@ select {
   background: radial-gradient(circle at top left, rgba(88, 102, 255, 0.14), transparent 28%),
               linear-gradient(180deg, rgba(7, 10, 18, 0.28) 0%, rgba(4, 5, 10, 0.92) 100%);
   z-index: 1;
-}
-
-.hero-inner {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.95fr);
-  gap: 3rem;
-  align-items: center;
 }
 
 .hero-copy {
@@ -238,6 +240,7 @@ select {
 }
 
 .hero-image {
+  display: none;
   min-height: 600px;
   border-radius: 28px;
   background-image: url('https://images.unsplash.com/photo-1580894908361-0670ea3a4f2a?auto=format&fit=crop&w=1100&q=80');
@@ -248,12 +251,9 @@ select {
 }
 
 .hero-search-panel {
-  position: absolute;
-  left: 50%;
-  bottom: 48px;
-  transform: translateX(-50%);
-  width: calc(100% - 4rem);
+  width: 100%;
   max-width: 1120px;
+  margin: 2rem auto 0;
   background: rgba(12, 17, 34, 0.88);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 40px 90px rgba(0, 0, 0, 0.35);
@@ -263,7 +263,6 @@ select {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 1rem;
-  z-index: 3;
 }
 
 .search-card-item {
@@ -274,6 +273,49 @@ select {
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.search-card-item .form-control {
+  background: transparent;
+  border: none;
+  color: #f5f7ff;
+  padding: 0;
+  font-size: 1rem;
+  box-shadow: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.search-card-item .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.search-card-item .form-control:focus {
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+}
+
+.search-card-item select.form-control {
+  padding-right: 2rem;
+  background-color: transparent;
+}
+
+.search-card-item select.form-control option {
+  background: #0f1525;
+  color: #f5f7ff;
+}
+
+.search-card-item input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.search-card-item input[type="number"]::-webkit-outer-spin-button,
+.search-card-item input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .search-icon {
@@ -322,6 +364,10 @@ select {
   margin-left: auto;
   color: rgba(255, 255, 255, 0.55);
   pointer-events: none;
+}
+
+.search-card-item:has(select) .search-chevron {
+  display: none;
 }
 
 .search-action {
@@ -386,6 +432,40 @@ select {
   flex-direction: column;
   gap: 1rem;
   min-height: 280px;
+}
+
+.room-image-preview {
+  width: 100%;
+  height: 200px;
+  border-radius: 18px 18px 0 0;
+  overflow: hidden;
+  margin: -1.8rem -1.8rem 1rem -1.8rem;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.room-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.room-detail-image {
+  width: 100%;
+  max-height: 400px;
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.room-detail-image img {
+  width: 100%;
+  height: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  display: block;
 }
 
 .room-card h3 {
@@ -557,29 +637,124 @@ select {
   justify-content: center;
 }
 
+@media (min-width: 1100px) {
+  .hero-image {
+    display: block;
+  }
+}
+
+@media (max-width: 1200px) {
+  .hero-search-panel {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .search-action {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 992px) {
+  .hero-search-panel {
+    position: relative;
+    width: 100%;
+    max-width: 1120px;
+    margin: 3rem auto 0;
+    background: rgba(12, 17, 34, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 40px 90px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(24px);
+    border-radius: 24px;
+    padding: 1.4rem 1.6rem;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1rem;
+  }
+}
+
 @media (max-width: 1100px) {
-  .hero-inner {
+  .main-nav {
+    padding: 20px 0;
+  }
+  .cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .detail-grid {
     grid-template-columns: 1fr;
   }
-
-  .hero-image {
-    min-height: 380px;
+  .metric-row {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
-  .main-nav {
-    padding: 20px 0;
+  .page-section {
+    padding: 60px 0 40px;
   }
-  .hero-search-panel {
+  .section-heading {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+  .hero-inner h1 {
+    font-size: clamp(2.2rem, 8vw, 3.5rem);
+  }
+  .hero-section {
+    padding-top: 100px;
+    padding-bottom: 180px;
+  }
+  .hero-image {
+    min-height: 280px;
+  }
+  .cards-grid {
     grid-template-columns: 1fr;
   }
-  .search-action {
+  .room-card-actions {
+    flex-direction: column;
+  }
+  .room-card-actions a {
     width: 100%;
+    text-align: center;
+  }
+  .nav-inner {
+    gap: 12px;
+  }
+  .brand-subtitle {
+    display: none;
   }
 }
 
-/* ---------- Mobile nav toggle ---------- */
+@media (min-width: 1100px) {
+  .hero-image {
+    display: block;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .card-panel {
+    padding: 1.2rem;
+  }
+  .btn-login,
+  .btn-register,
+  .hero-cta,
+  .search-action,
+  .btn-success-cta,
+  .btn-ghost-cta,
+  .btn-outline-danger-soft,
+  .entry-exit-btn {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+  }
+  .search-card-item {
+    padding: 0.75rem;
+  }
+  .search-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+  }
+}
+
 
 .nav-toggle-checkbox {
   display: none;
@@ -674,7 +849,6 @@ select {
   }
 }
 
-/* ---------- Alerts / flash messages ---------- */
 
 .alerts-stack {
   position: relative;
@@ -734,7 +908,6 @@ select {
   color: var(--accent);
 }
 
-/* ---------- Card width helpers (replace inline max-width styles) ---------- */
 
 .card-narrow {
   max-width: 520px;
@@ -746,7 +919,6 @@ select {
   margin: 0 auto;
 }
 
-/* ---------- Action buttons ---------- */
 
 .btn-success-cta {
   display: inline-flex;
@@ -785,26 +957,6 @@ select {
   background: rgba(255, 255, 255, 0.12);
 }
 
-.btn-outline-danger-soft {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  gap: 10px;
-  padding: 14px 24px;
-  font-weight: 600;
-  color: var(--danger);
-  background: var(--danger-soft);
-  border: 1px solid rgba(255, 92, 122, 0.3);
-  cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.btn-outline-danger-soft:hover {
-  transform: translateY(-1px);
-  background: rgba(255, 92, 122, 0.25);
-}
-
 .room-card-actions {
   display: flex;
   gap: 0.7rem;
@@ -817,7 +969,6 @@ select {
   min-width: 140px;
 }
 
-/* ---------- Plain Django form styling (form.as_p) ---------- */
 
 .card-panel form p {
   margin: 0 0 1.1rem;
@@ -882,7 +1033,6 @@ select {
   margin-top: 0.4rem;
 }
 
-/* ---------- Misc form layout helpers ---------- */
 
 .form-row-split {
   display: grid;
@@ -896,7 +1046,6 @@ select {
   }
 }
 
-/* ---------- Home page extras ---------- */
 
 .search-form {
   width: 100%;
@@ -940,7 +1089,6 @@ select {
   }
 }
 
-/* ---------- Empty states ---------- */
 
 .empty-state {
   grid-column: 1 / -1;
@@ -969,7 +1117,6 @@ select {
   border-style: dashed;
 }
 
-/* ---------- QR scanner result ---------- */
 
 .qr-result {
   margin-top: 1.4rem;
@@ -1008,4 +1155,109 @@ select {
 
 .qr-result-error .qr-result-icon {
   color: var(--danger);
+}
+
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.status-pending {
+  background: var(--warning-soft);
+  color: var(--warning);
+  border: 1px solid rgba(255, 184, 76, 0.3);
+}
+
+.status-confirmed {
+  background: var(--success-soft);
+  color: var(--success);
+  border: 1px solid rgba(61, 220, 151, 0.3);
+}
+
+.status-active {
+  background: rgba(88, 102, 255, 0.16);
+  color: #8b9aff;
+  border: 1px solid rgba(88, 102, 255, 0.3);
+}
+
+.status-completed {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.status-cancelled {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border: 1px solid rgba(255, 92, 122, 0.3);
+}
+
+
+.btn-outline-danger-soft {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  gap: 10px;
+  padding: 14px 24px;
+  font-weight: 600;
+  color: var(--danger);
+  background: var(--danger-soft);
+  border: 1px solid rgba(255, 92, 122, 0.3);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.btn-outline-danger-soft:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 92, 122, 0.24);
+}
+
+
+.card-narrow {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.card-medium {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+
+.room-card-actions {
+  display: flex;
+  gap: 0.7rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.room-card-actions a {
+  flex: 1;
+  min-width: 140px;
+}
+
+
+.entry-exit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  gap: 10px;
+  padding: 14px 24px;
+  font-weight: 600;
+  color: #06231a;
+  background: var(--success);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.entry-exit-btn:hover {
+  transform: translateY(-1px);
+  background: #4eeaab;
 }

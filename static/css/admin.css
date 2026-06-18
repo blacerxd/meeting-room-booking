@@ -1,0 +1,408 @@
+
+:root {
+  --admin-bg: #0a0d14;
+  --admin-panel-bg: #111827;
+  --admin-border: rgba(255, 255, 255, 0.08);
+  --admin-text: #f5f7ff;
+  --admin-text-secondary: #adb6d6;
+  --admin-accent: #5866ff;
+  --admin-accent-hover: #4c6dff;
+  --admin-success: #3ddc97;
+  --admin-danger: #ff5c7a;
+  --admin-warning: #ffb84c;
+}
+
+body {
+  background: var(--admin-bg) !important;
+  color: var(--admin-text) !important;
+}
+
+#header {
+  background: linear-gradient(180deg, rgba(17, 24, 39, 0.95) 0%, rgba(10, 13, 20, 0.98) 100%) !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+#header a:link, #header a:visited {
+  color: var(--admin-text) !important;
+}
+
+#header a:hover {
+  color: var(--admin-accent) !important;
+}
+
+#site-name a {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #5866ff 0%, #8b9aff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+#nav-sidebar {
+  background: var(--admin-panel-bg) !important;
+  border-right: 1px solid var(--admin-border) !important;
+}
+
+#nav-sidebar a {
+  color: var(--admin-text-secondary) !important;
+  transition: all 0.2s ease;
+}
+
+#nav-sidebar a:hover {
+  background: rgba(88, 102, 255, 0.1) !important;
+  color: var(--admin-text) !important;
+}
+
+#nav-sidebar a.selected {
+  background: rgba(88, 102, 255, 0.15) !important;
+  color: var(--admin-accent) !important;
+  border-left: 3px solid var(--admin-accent);
+}
+
+#content {
+  background: var(--admin-bg) !important;
+}
+
+.module {
+  background: var(--admin-panel-bg) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px !important;
+}
+
+.module h2 {
+  background: rgba(88, 102, 255, 0.1) !important;
+  color: var(--admin-text) !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+  padding: 12px 20px !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  border-radius: 12px 12px 0 0 !important;
+}
+
+table {
+  color: var(--admin-text) !important;
+}
+
+thead th {
+  background: rgba(88, 102, 255, 0.08) !important;
+  color: var(--admin-text) !important;
+  border-bottom: 2px solid var(--admin-border) !important;
+  padding: 12px 15px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--admin-border) !important;
+  transition: background 0.2s ease;
+}
+
+tbody tr:hover {
+  background: rgba(88, 102, 255, 0.05) !important;
+}
+
+tbody td {
+  padding: 12px 15px !important;
+  color: var(--admin-text-secondary) !important;
+}
+
+tbody a {
+  color: var(--admin-accent) !important;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+tbody a:hover {
+  color: var(--admin-accent-hover) !important;
+  text-decoration: underline;
+}
+
+.button, input[type="submit"], input[type="button"], .submit-row input {
+  background: var(--admin-accent) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 10px 20px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.button:hover, input[type="submit"]:hover, input[type="button"]:hover {
+  background: var(--admin-accent-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(88, 102, 255, 0.3);
+}
+
+.button.default, .submit-row input[type="submit"] {
+  background: var(--admin-success) !important;
+  color: #06231a !important;
+}
+
+.button.default:hover, .submit-row input[type="submit"]:hover {
+  background: #4eeaab !important;
+}
+
+.button.deletelink, .submit-row input[type="submit"].default {
+  background: var(--admin-danger) !important;
+}
+
+.button.deletelink:hover, .submit-row input[type="submit"].default:hover {
+  background: #ff7a94 !important;
+}
+
+form {
+  background: var(--admin-panel-bg) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 12px !important;
+  padding: 20px !important;
+}
+
+.form-row {
+  border-bottom: 1px solid var(--admin-border) !important;
+  padding: 15px 0 !important;
+}
+
+.form-row:last-child {
+  border-bottom: none !important;
+}
+
+fieldset {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 8px !important;
+  padding: 20px !important;
+  margin-bottom: 20px !important;
+}
+
+fieldset h2 {
+  background: transparent !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+  color: var(--admin-text) !important;
+  padding-bottom: 10px !important;
+  margin-bottom: 15px !important;
+}
+
+label {
+  color: var(--admin-text-secondary) !important;
+  font-weight: 500 !important;
+  font-size: 0.9rem !important;
+}
+
+input[type="text"], input[type="password"], input[type="email"],
+input[type="number"], input[type="url"], input[type="search"],
+textarea, select {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 8px !important;
+  color: var(--admin-text) !important;
+  padding: 10px 12px !important;
+  transition: all 0.2s ease;
+}
+
+input[type="text"]:focus, input[type="password"]:focus,
+input[type="email"]:focus, input[type="number"]:focus,
+textarea:focus, select:focus {
+  border-color: var(--admin-accent) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(88, 102, 255, 0.1);
+}
+
+input[type="checkbox"], input[type="radio"] {
+  accent-color: var(--admin-accent) !important;
+}
+
+.help {
+  color: var(--admin-text-secondary) !important;
+  font-size: 0.85rem !important;
+  margin-top: 5px !important;
+  font-style: italic;
+}
+
+ul.errorlist {
+  background: rgba(255, 92, 122, 0.1) !important;
+  border: 1px solid rgba(255, 92, 122, 0.3) !important;
+  border-radius: 8px !important;
+  padding: 10px 15px !important;
+  margin: 10px 0 !important;
+}
+
+ul.errorlist li {
+  color: var(--admin-danger) !important;
+  font-weight: 500 !important;
+}
+
+.messagelist {
+  background: var(--admin-panel-bg) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 8px !important;
+  padding: 15px 20px !important;
+  margin-bottom: 20px !important;
+}
+
+.messagelist li {
+  color: var(--admin-text) !important;
+  padding: 8px 0 !important;
+}
+
+.messagelist li.success {
+  background: rgba(61, 220, 151, 0.1) !important;
+  border-left: 4px solid var(--admin-success) !important;
+  padding-left: 15px !important;
+}
+
+.messagelist li.error {
+  background: rgba(255, 92, 122, 0.1) !important;
+  border-left: 4px solid var(--admin-danger) !important;
+  padding-left: 15px !important;
+}
+
+.messagelist li.warning {
+  background: rgba(255, 184, 76, 0.1) !important;
+  border-left: 4px solid var(--admin-warning) !important;
+  padding-left: 15px !important;
+}
+
+.paginator {
+  background: var(--admin-panel-bg) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 8px !important;
+  padding: 10px 20px !important;
+}
+
+.paginator a, .paginator span {
+  color: var(--admin-text-secondary) !important;
+  padding: 8px 12px !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease;
+}
+
+.paginator a:hover {
+  background: rgba(88, 102, 255, 0.1) !important;
+  color: var(--admin-text) !important;
+}
+
+.paginator .current {
+  background: var(--admin-accent) !important;
+  color: #fff !important;
+  font-weight: 600;
+}
+
+#changelist-filter {
+  background: var(--admin-panel-bg) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 12px !important;
+  padding: 15px !important;
+}
+
+#changelist-filter h2 {
+  color: var(--admin-text) !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 15px !important;
+  padding-bottom: 10px !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+}
+
+#changelist-filter ul {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#changelist-filter li {
+  padding: 8px 0 !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+}
+
+#changelist-filter li:last-child {
+  border-bottom: none !important;
+}
+
+#changelist-filter a {
+  color: var(--admin-text-secondary) !important;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+#changelist-filter a:hover {
+  color: var(--admin-accent) !important;
+}
+
+#changelist-filter a.selected {
+  color: var(--admin-accent) !important;
+  font-weight: 600;
+}
+
+#changelist-search {
+  background: var(--admin-panel-bg) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 12px !important;
+  padding: 15px !important;
+  margin-bottom: 20px !important;
+}
+
+#searchbar {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 8px !important;
+  color: var(--admin-text) !important;
+  padding: 10px 15px !important;
+}
+
+#searchbar:focus {
+  border-color: var(--admin-accent) !important;
+  outline: none;
+}
+
+.submit-row {
+  background: var(--admin-panel-bg) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 12px !important;
+  padding: 15px 20px !important;
+  margin-top: 20px !important;
+}
+
+.breadcrumbs {
+  background: var(--admin-panel-bg) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 8px !important;
+  padding: 10px 20px !important;
+  margin-bottom: 20px !important;
+}
+
+.breadcrumbs a {
+  color: var(--admin-accent) !important;
+}
+
+.breadcrumbs a:hover {
+  color: var(--admin-accent-hover) !important;
+}
+
+@media (max-width: 768px) {
+  #header {
+    padding: 10px 15px !important;
+  }
+
+  #content {
+    padding: 15px !important;
+  }
+
+  .module {
+    padding: 15px !important;
+  }
+
+  table {
+    font-size: 0.85rem !important;
+  }
+
+  thead th, tbody td {
+    padding: 8px 10px !important;
+  }
+}
