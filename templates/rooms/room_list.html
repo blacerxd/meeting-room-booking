@@ -21,13 +21,10 @@
             {% for room in rooms %}
             <article class="card-panel room-card">
                 {% if room.image %}
-<<<<<<< HEAD
-                <div class="room-image-preview">
-                    <img src="{{ room.image.url }}" alt="{{ room.name }}" />
-=======
+
                 <div style="border-radius: 16px; overflow: hidden; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.1);">
                     <img src="{{ room.image.url }}" alt="{{ room.name }}" style="width: 100%; height: 200px; object-fit: cover; display: block;">
->>>>>>> 43abe7642129155a9f9fd02a7ea8c5b437a154c3
+
                 </div>
                 {% endif %}
                 <div>

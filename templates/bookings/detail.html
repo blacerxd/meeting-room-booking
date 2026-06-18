@@ -12,19 +12,10 @@
       <p class="room-meta">Цель: {{ booking.purpose|default:'не указана' }}</p>
       <span class="status-pill status-{{ booking.status }}">{{ booking.get_status_display }}</span>
 
-<<<<<<< HEAD
-      {% if booking.status == 'pending' or booking.status == 'confirmed' or booking.status == 'active' %}
-      <form method="post" action="{% url 'bookings:booking_cancel' booking.id %}"
-            data-confirm="Точно отменить это бронирование?" class="mt-4">
-        {% csrf_token %}
-        <button type="submit" class="btn-outline-danger-soft">Отменить бронирование</button>
-      </form>
-      {% endif %}
-=======
       <div class="room-card-actions" style="margin-top: 1.4rem;">
         <a href="{% url 'rooms:room_list' %}" class="btn-ghost-cta">← К списку комнат</a>
         <a href="{% url 'bookings:booking_list' %}" class="btn-ghost-cta">Мои бронирования</a>
-        
+
         {% if booking.status == 'pending' or booking.status == 'confirmed' or booking.status == 'active' %}
         <form method="post" action="{% url 'bookings:booking_cancel' booking.id %}"
               data-confirm="Точно отменить это бронирование?" style="margin-left: auto;">
@@ -33,7 +24,7 @@
         </form>
         {% endif %}
       </div>
->>>>>>> 43abe7642129155a9f9fd02a7ea8c5b437a154c3
+
     </div>
   </div>
 </section>
