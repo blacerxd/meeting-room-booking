@@ -214,10 +214,24 @@
     });
   }
 
+  /* ---------- Auto-dismiss alerts ---------- */
+
+  function initAutoDismissAlerts() {
+    document.querySelectorAll('.alert-card').forEach((alert) => {
+      setTimeout(() => {
+        alert.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        alert.style.opacity = '0';
+        alert.style.transform = 'translateY(-10px)';
+        setTimeout(() => alert.remove(), 400);
+      }, 4500);
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     initQrScanner();
     initExitButtons();
     initCancelConfirm();
     initThemeToggle();
+    initAutoDismissAlerts();
   });
 })();
