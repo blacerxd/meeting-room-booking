@@ -16,7 +16,7 @@
         <h4>{{ b.room.name }}</h4>
         <p class="room-meta">{{ b.start_time|date:'d.m.Y H:i' }} — {{ b.end_time|date:'d.m.Y H:i' }}</p>
         <span class="status-pill status-{{ b.status }}">{{ b.get_status_display }}</span>
-        <div style="margin-top:1rem;">
+        <div class="mt-4">
           <a href="{% url 'bookings:booking_detail' b.id %}" class="hero-cta">Открыть</a>
         </div>
       </div>

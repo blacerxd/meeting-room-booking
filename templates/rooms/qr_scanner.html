@@ -3,27 +3,22 @@
 {% block title %}QR Сканер — MeetFlow{% endblock %}
 
 {% block content %}
-<section class="page-section">
-    <div class="container">
-        <div class="section-header">
-            <div class="section-subtitle">Вход в комнату</div>
-            <h1 class="section-heading">Сканируйте QR и заходите в переговорную</h1>
-            <p class="text-secondary mt-3">Введите идентификатор QR-кода или используйте реальное устройство для доступа в комнату.</p>
+<section class='page-section'>
+    <div class='container'>
+        <div class='section-header'>
+            <div class='section-subtitle'>Вход в комнату</div>
+            <h1 class='section-heading'>Сканируйте QR и заходите в переговорную</h1>
+            <p class='text-secondary mt-3'>Введите идентификатор QR-кода или используйте реальное устройство для доступа в комнату.</p>
         </div>
 
-        <div class="scanner-panel">
-            <form id="qr-form" method="post" action="{% url 'rooms:process_qr' %}">
+        <div class='scanner-panel'>
+            <form method='post' action="{% url 'rooms:process_qr' %}" data-qr-form>
                 {% csrf_token %}
-                <label for="qr_code" class="form-label">QR-код комнаты</label>
-                <input id="qr_code" name="qr_code" type="text" placeholder="Введите QR идентификатор" autocomplete="off" required>
-                <button type="submit" id="qr-submit-btn">Проверить доступ</button>
+                <label for='qr_code' class='form-label'>QR-код комнаты</label>
+                <input id='qr_code' name='qr_code' type='text' placeholder='Введите QR идентификатор' required>
+                <button type='submit' class='hero-cta'>Проверить доступ</button>
             </form>
-
-            <div id="qr-result" class="qr-result" hidden>
-                <div class="qr-result-icon"><i class="fas"></i></div>
-                <p class="qr-result-message"></p>
-                <button type="button" id="qr-exit-btn" class="btn-ghost-cta" hidden>Зафиксировать выход</button>
-            </div>
+            <div class="scanner-result" data-scanner-result></div>
         </div>
     </div>
 </section>
@@ -31,81 +26,21 @@
 
 {% block extra_js %}
 <script>
-(function () {
-    var form = document.getElementById('qr-form');
-    var input = document.getElementById('qr_code');
-    var submitBtn = document.getElementById('qr-submit-btn');
-    var resultBox = document.getElementById('qr-result');
-    var resultIcon = resultBox.querySelector('.qr-result-icon i');
-    var resultMessage = resultBox.querySelector('.qr-result-message');
-    var exitBtn = document.getElementById('qr-exit-btn');
+  window.MeetFlow = window.MeetFlow || {};
+  window.MeetFlow.onEntryCreated = function (data) {
+    const resultBox = document.querySelector('[data-scanner-result]');
+    if (!resultBox || !data.entry_id) return;
 
-    function showResult(success, message) {
-        resultBox.hidden = false;
-        resultBox.classList.remove('qr-result-success', 'qr-result-error');
-        resultBox.classList.add(success ? 'qr-result-success' : 'qr-result-error');
-        resultIcon.className = success ? 'fas fa-circle-check' : 'fas fa-circle-exclamation';
-        resultMessage.textContent = message;
-    }
+    const exitUrl = '{% url "rooms:exit_room" 0 %}'.replace('0', data.entry_id);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn-ghost-cta mt-3';
+    btn.textContent = 'Выйти из комнаты';
+    btn.setAttribute('data-exit-entry', data.entry_id);
+    btn.setAttribute('data-exit-url', exitUrl);
 
-    form.addEventListener('submit', function (event) {
-        event.preventDefault();
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Проверяем...';
-        exitBtn.hidden = true;
-
-        var formData = new FormData(form);
-
-        fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(function (response) { return response.json(); })
-        .then(function (data) {
-            showResult(data.success, data.message);
-            if (data.success && data.entry_id) {
-                exitBtn.hidden = false;
-                exitBtn.dataset.entryId = data.entry_id;
-                input.value = '';
-            }
-        })
-        .catch(function () {
-            showResult(false, 'Не удалось связаться с сервером. Попробуйте ещё раз.');
-        })
-        .finally(function () {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Проверить доступ';
-        });
-    });
-
-    exitBtn.addEventListener('click', function () {
-        var entryId = exitBtn.dataset.entryId;
-        if (!entryId) { return; }
-
-        exitBtn.disabled = true;
-        exitBtn.textContent = 'Фиксируем выход...';
-
-        fetch('/rooms/exit/' + entryId + '/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(function (response) { return response.json(); })
-        .then(function (data) {
-            showResult(data.success, data.message);
-            exitBtn.hidden = true;
-        })
-        .catch(function () {
-            showResult(false, 'Не удалось зафиксировать выход. Попробуйте ещё раз.');
-        })
-        .finally(function () {
-            exitBtn.disabled = false;
-            exitBtn.textContent = 'Зафиксировать выход';
-        });
-    });
-})();
+    resultBox.appendChild(document.createElement('br'));
+    resultBox.appendChild(btn);
+  };
 </script>
 {% endblock %}

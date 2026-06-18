@@ -14,6 +14,11 @@
         <div class="cards-grid">
             {% for room in rooms %}
             <article class="card-panel room-card">
+                {% if room.image %}
+                <div class="room-image-preview">
+                    <img src="{{ room.image.url }}" alt="{{ room.name }}" />
+                </div>
+                {% endif %}
                 <div>
                     <h3>{{ room.name }}</h3>
                     <p class="room-meta">{{ room.location }} · Вместимость {{ room.capacity }} человек</p>
@@ -25,12 +30,9 @@
                     </div>
                 </div>
 
-                <div class="mt-auto">
-                    <span class="room-status-pill">{{ room.get_status_display }}</span>
-                                        <div style="display:flex; gap:8px; margin-top:1rem;">
-                                            <a href="{% url 'rooms:room_detail' room.id %}" class="hero-cta" style="display:inline-flex;">Подробнее</a>
-                                            <a href="{% url 'bookings:booking_create' room.id %}" class="hero-cta" style="background:#2ecc71;">Забронировать</a>
-                                        </div>
+                <div class="room-card-actions">
+                    <a href="{% url 'rooms:room_detail' room.id %}" class="hero-cta">Подробнее</a>
+                    <a href="{% url 'bookings:booking_create' room.id %}" class="btn-success-cta">Забронировать</a>
                 </div>
             </article>
             {% empty %}

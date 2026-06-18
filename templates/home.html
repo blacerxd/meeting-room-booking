@@ -12,57 +12,73 @@
     <div class="hero-background"></div>
     <div class="hero-overlay"></div>
 
-    <div class="container hero-inner">
-        <div class="hero-copy">
-            <span class="hero-label">Сервис бронирования</span>
-            <h1>Переговорные комнаты для продуктивных встреч</h1>
-            <p>Быстрый поиск, удобное бронирование и все необходимое для ваших встреч</p>
-            <a href="{% url 'rooms:room_list' %}" class="hero-cta">Найти комнату <span>→</span></a>
+    <div class="container">
+        <div class="hero-inner">
+            <div class="hero-copy">
+                <span class="hero-label">Сервис бронирования</span>
+                <h1>Переговорные комнаты для продуктивных встреч</h1>
+                <p>Быстрый поиск, удобное бронирование и все необходимое для ваших встреч</p>
+                <a href="{% url 'rooms:room_list' %}" class="hero-cta">Найти комнату <span>→</span></a>
+            </div>
         </div>
-
     </div>
 
     <div class="hero-search-panel">
-        <form method="get" action="{% url 'rooms:room_list' %}" class="d-flex search-form">
-            <div class="search-card-item">
-                <div class="search-icon"><i class="fas fa-calendar-days"></i></div>
-                <div>
-                    <div class="search-title">Начало</div>
-                    <input id="search_start" name="start" class="form-control" placeholder="Дата и время начала" />
+            <form method="get" action="{% url 'rooms:room_list' %}" class="search-form">
+                <div class="search-card-item">
+                    <div class="search-icon"><i class="fas fa-calendar-days"></i></div>
+                    <div>
+                        <div class="search-title">Начало</div>
+                        <input id="search_start" name="start" class="form-control" placeholder="Дата и время начала" />
+                    </div>
+                    <div class="search-chevron"><i class="fas fa-chevron-down"></i></div>
                 </div>
-                <div class="search-chevron"><i class="fas fa-chevron-down"></i></div>
-            </div>
 
-            <div class="search-card-item">
-                <div class="search-icon"><i class="fas fa-calendar-days"></i></div>
-                <div>
-                    <div class="search-title">Окончание</div>
-                    <input id="search_end" name="end" class="form-control" placeholder="Дата и время окончания" />
+                <div class="search-card-item">
+                    <div class="search-icon"><i class="fas fa-calendar-days"></i></div>
+                    <div>
+                        <div class="search-title">Окончание</div>
+                        <input id="search_end" name="end" class="form-control" placeholder="Дата и время окончания" />
+                    </div>
+                    <div class="search-chevron"><i class="fas fa-chevron-down"></i></div>
                 </div>
-                <div class="search-chevron"><i class="fas fa-chevron-down"></i></div>
-            </div>
 
-            <div class="search-card-item">
-                <div class="search-icon"><i class="fas fa-user"></i></div>
-                <div>
-                    <div class="search-title">Вместимость</div>
-                    <input name="capacity" type="number" class="form-control" min="1" placeholder="Кол-во" />
+                <div class="search-card-item">
+                    <div class="search-icon"><i class="fas fa-user"></i></div>
+                    <div>
+                        <div class="search-title">Вместимость</div>
+                        <select name="capacity" class="form-control">
+                            <option value="">Любая</option>
+                            <option value="2">2 человека</option>
+                            <option value="5">5 человек</option>
+                            <option value="10">10 человек</option>
+                            <option value="20">20 человек</option>
+                            <option value="50">50+ человек</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="search-chevron"><i class="fas fa-chevron-down"></i></div>
-            </div>
 
-            <div class="search-card-item">
-                <div class="search-icon"><i class="fas fa-clover"></i></div>
-                <div>
-                    <div class="search-title">Удобства</div>
-                    <input name="q" type="text" class="form-control" placeholder="Проектор, Zoom, доска" />
+                <div class="search-card-item">
+                    <div class="search-icon"><i class="fas fa-clover"></i></div>
+                    <div>
+                        <div class="search-title">Удобства</div>
+                        <select name="amenity" class="form-control">
+                            <option value="">Все</option>
+                            <option value="projector">Проектор</option>
+                            <option value="zoom">Zoom / Teams</option>
+                            <option value="whiteboard">Белая доска</option>
+                            <option value="hdmi">HDMI</option>
+                            <option value="wifi">Wi-Fi</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="search-chevron"><i class="fas fa-chevron-down"></i></div>
-            </div>
 
-            <button type="submit" class="search-action">Найти</button>
-        </form>
+                <button type="submit" class="search-action">Найти</button>
+            </form>
+            </div>
+        </div>
     </div>
+</div>
 </section>
 
 <section class="page-section">

@@ -20,18 +20,11 @@ class Booking(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='bookings')
 
-    # Время бронирования
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
-
-    # Статус
     status = models.CharField(max_length=20, choices=BOOKING_STATUS, default='pending')
-
-    # Дополнительная информация
     purpose = models.CharField(max_length=500, blank=True)
     participants_count = models.PositiveIntegerField(default=1)
-
-    # Технические поля
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     cancelled_at = models.DateTimeField(null=True, blank=True)
@@ -92,14 +85,9 @@ class RoomEntry(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='room_entries')
     booking = models.ForeignKey(Booking, on_delete=models.SET_NULL, null=True, blank=True, related_name='entries')
 
-    # Время входа и выхода
     entry_time = models.DateTimeField(auto_now_add=True)
     exit_time = models.DateTimeField(null=True, blank=True)
-
-    # IP адрес сканирующего устройства (опционально)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
-
-    # Статус входа
     is_authorized = models.BooleanField(default=True)
     reason = models.CharField(max_length=200, blank=True)
 

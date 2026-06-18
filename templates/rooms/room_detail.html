@@ -13,6 +13,11 @@
 
         <div class='detail-grid'>
             <div class='detail-panel'>
+                {% if room.image %}
+                <div class='room-detail-image'>
+                    <img src='{{ room.image.url }}' alt='{{ room.name }}' />
+                </div>
+                {% endif %}
                 <h4>Описание комнаты</h4>
                 <p class='room-meta'>{{ room.description|default:'Описание пока не добавлено.' }}</p>
 
@@ -41,7 +46,7 @@
                     <li>
                         <p class='item-title'>{{ booking.user.get_full_name|default:booking.user.username }}</p>
                         <p class='room-meta'>{{ booking.start_time|date:'d.m.Y H:i' }} — {{ booking.end_time|date:'d.m.Y H:i' }}</p>
-                        <p class='room-meta'>Статус: {{ booking.status|capfirst }}</p>
+                        <span class="status-pill status-{{ booking.status }}">{{ booking.get_status_display }}</span>
                     </li>
                     {% empty %}
                     <li>Бронирования не найдены.</li>
@@ -51,10 +56,18 @@
                 <h4 class='mt-4'>Последние входы</h4>
                 <ul class='history-list'>
                     {% for entry in entries %}
-                    <li>
+                    <li data-entry-row>
                         <p class='item-title'>{{ entry.user.get_full_name|default:entry.user.username }}</p>
                         <p class='room-meta'>Вход: {{ entry.entry_time|date:'d.m.Y H:i' }}</p>
-                        <p class='room-meta'>Выход: {{ entry.exit_time|date:'d.m.Y H:i'|default:'еще в комнате' }}</p>
+                        <p class='room-meta'>
+                            Выход:
+                            <span data-exit-status>{{ entry.exit_time|date:'d.m.Y H:i'|default:'еще в комнате' }}</span>
+                        </p>
+                        {% if not entry.exit_time and entry.user_id == request.user.id %}
+                        <button type="button" class="entry-exit-btn"
+                                data-exit-entry="{{ entry.id }}"
+                                data-exit-url="{% url 'rooms:exit_room' entry.id %}">Зафиксировать выход</button>
+                        {% endif %}
                     </li>
                     {% empty %}
                     <li>Входы не найдены.</li>

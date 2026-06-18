@@ -5,7 +5,7 @@
 {% block content %}
 <section class="page-section">
   <div class="container">
-    <div class="card-panel" style="max-width:720px;margin:0 auto;">
+    <div class="card-panel card-medium">
       <h3>{{ booking.room.name }}</h3>
       <p class="room-meta">{{ booking.start_time|date:'d.m.Y H:i' }} — {{ booking.end_time|date:'d.m.Y H:i' }}</p>
       <p class="room-meta">Участников: {{ booking.participants_count }}</p>
@@ -14,7 +14,7 @@
 
       {% if booking.status == 'pending' or booking.status == 'confirmed' or booking.status == 'active' %}
       <form method="post" action="{% url 'bookings:booking_cancel' booking.id %}"
-            data-confirm="Точно отменить это бронирование?" style="margin-top:1.4rem;">
+            data-confirm="Точно отменить это бронирование?" class="mt-4">
         {% csrf_token %}
         <button type="submit" class="btn-outline-danger-soft">Отменить бронирование</button>
       </form>
