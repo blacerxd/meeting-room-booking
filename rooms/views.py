@@ -285,9 +285,6 @@ def room_list(request):
     end_dt = parse_datetime(end) if end else None
 
     for room in rooms:
-        if not has_room_access(request.user, room):
-            continue
-
         conflict = False
         if start_dt and end_dt:
             from django.utils.timezone import timedelta
