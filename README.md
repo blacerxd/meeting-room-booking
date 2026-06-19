@@ -1,66 +1,207 @@
-# meeting-room-booking
-1 Инструкция запуска:
-pip install -r requirements.txt установка зависимостей 
-python 3.10+
-PostgerSQL 18.4
+# Meeting Room Booking
 
-Нужно произвести запуск PostgreSQL с правами супер пользователя // sudo -iu postgres psql
-Создаем базу данных // CREATE DATABASE meeting_booking;
-Применяем миграцию или скрипт инициализации таблиц // psql -U postgres -d meeting_booking -f database/init.sql
+Веб-приложение для бронирования переговорных комнат с контролем доступа через QR-коды. Позволяет сотрудникам бронировать переговорные онлайн, а при входе в комнату подтверждать бронь сканированием QR-кода — система сама проверяет права доступа и ведёт журнал входов.
 
-Настраиваем переменные окружения .env
+## Содержание
 
-    SECRET_KEY = 'django-insecure-xd$lb&m@kq4kcvw9a&g_@)*(7%ji$05r6dfn6cqgg70_lesz=n'
-    DEBUG = True
-    DB_NAME=meeting_booking
-    DB_USER=meeting_user
-    DB_PASSWORD=ваш пароль
-    DB_HOST=127.0.0.1
-    DB_PORT=5432
+- [Возможности](#возможности)
+- [Стек технологий](#стек-технологий)
+- [Инструкция запуска](#инструкция-запуска)
+- [Структура проекта](#структура-проекта)
+- [Тестирование](#тестирование)
+- [CI/CD](#cicd)
 
-запуск сервера // python manage.py runserver 
-если сервер успешно запущен переходим по ссылке из консоли ctrl + лкм
+## Возможности
 
-2 Стек технологий 
-Backend // Python (django)
-database // PostgreSQL 18.4
-Frontend // HTML/CSS/JS
+-  Бронирование переговорных комнат с проверкой конфликтов по времени
+-  Вход в комнату по QR-коду через камеру браузера
+-  Гранулярное управление доступом (просмотр / бронирование / управление)
+-  Журнал входов и выходов из переговорных
+-  Кастомная модель пользователя с ролями
+-  Админ-панель Django для управления всеми сущностями
 
-3 Структура проекта 
-MEETING-ROOM-BOOKING/
-├── .github/                # Настройки CI/CD (GitHub Actions)
-├── access_control/         # Приложение для управления правами доступа
-│   ├── migrations/         # Миграции базы данных для этого приложения
-│   ├── admin.py            # Настройка админ-панели для управления доступом
-│   ├── apps.py             # Конфигурация приложения Access Control
-│   ├── models.py           # Модели данных (роли, права, уровни доступа)
-│   ├── tests.py            # Тесты функционала управления доступом
-│   ├── urls.py             # Маршруты (URL) приложения access_control
-│   └── views.py            # Логика обработки запросов и отображения страниц
-├── bookings/               # Приложение для бронирования переговорных
-│   ├── migrations/         # Миграции для таблиц бронирования
-│   ├── admin.py            # Управление бронированиями через админку Django
-│   ├── apps.py             # Конфигурация приложения Bookings
-│   ├── models.py           # Ключевые модели (Бронирование, Время, Статус)
-│   ├── tests.py            # Тесты логики бронирования
-│   ├── urls.py             # Маршруты для создания/удаления/просмотра броней
-│   └── views.py            # Контроллеры/представления процесса бронирования
-├── config/                 # Главная конфигурационная папка Django-проекта
-│   ├── asgi.py             # Асинхронный интерфейс веб-сервера (для бэкенда)
-│   ├── settings.py         # Главные настройки проекта (БД, приложения, middleware)
-│   ├── urls.py             # Корневой (главный) конфигуратор URL-маршрутов
-│   ├── views.py            # Базовые или общие представления (например, главная страница)
-│   └── wsgi.py             # Синхронный интерфейс веб-сервера (для продакшна)
-├── rooms/                  # Приложение для управления переговорными комнатами
-│   ├── migrations/         # Миграции структуры таблиц комнат
-│   ├── admin.py            # Регистрация комнат в панели администратора
-│   ├── apps.py             # Конфигурация приложения Rooms
-│   ├── models.py           # Модели данных (Комната, Оборудование, Вместимость)
-│   ├── tests.py            # Тесты для проверки логики комнат
-│   ├── urls.py             # Маршруты для каталога и карточек переговорных
-│   └── views.py            # Логика вывода списка комнат и их статусов
-├── static/                 # Статические файлы проекта (CSS, JavaScript, изображения)
-├── templates/              # HTML-шаблоны для отрисовки страниц сайта
-├── users/                  # Приложение для кастомных пользователей и профилей
-├── .env                    # Локальные переменные окружения (пароли БД, секретные ключи)
-├── .gitignore              # Список файлов, игнорируемых системой контроля версий Git
+## Стек технологий
+
+**Backend**
+- Python 3.12+
+- Django 5.2.6
+- PostgreSQL 18.4
+- psycopg2-binary — драйвер PostgreSQL
+- python-dotenv — переменные окружения
+
+**Frontend**
+- HTML / CSS / JavaScript
+- Django Templates
+- django-crispy-forms + crispy-bootstrap5 — формы
+- django-widget-tweaks — настройка виджетов
+- jsQR — сканирование QR-кодов в браузере
+
+**Прочее**
+- Pillow + qrcode — генерация и обработка изображений/QR
+- pytest + pytest-django — тестирование
+- GitHub Actions — CI/CD
+
+## Инструкция запуска
+
+### 1. Клонировать репозиторий
+
+```bash
+git clone https://github.com/blacerxd/meeting-room-booking.git
+cd meeting-room-booking
+```
+
+### 2. Создать виртуальное окружение и установить зависимости
+
+```bash
+python -m venv venv
+source venv/bin/activate    # Linux/macOS
+venv\Scripts\activate       # Windows
+
+pip install -r requirements.txt
+```
+
+### 3. Настроить PostgreSQL
+
+Запустить PostgreSQL с правами суперпользователя и создать базу данных:
+
+```bash
+sudo -iu postgres psql
+```
+
+```sql
+CREATE DATABASE meeting_booking;
+CREATE USER meeting_user WITH PASSWORD 'ваш_пароль';
+GRANT ALL PRIVILEGES ON DATABASE meeting_booking TO meeting_user;
+```
+
+### 4. Настроить переменные окружения
+
+Создать файл `.env` в корне проекта:
+
+```env
+SECRET_KEY=django-insecure-xd$lb&m@kq4kcvw9a&g_@)*(7%ji$05r6dfn6cqgg70_lesz=n
+DEBUG=True
+DB_NAME=meeting_booking
+DB_USER=meeting_user
+DB_PASSWORD=ваш_пароль
+DB_HOST=127.0.0.1
+DB_PORT=5432
+```
+
+>  Для продакшена обязательно сгенерируйте новый `SECRET_KEY` и установите `DEBUG=False`.
+
+### 5. Применить миграции
+
+```bash
+python manage.py migrate
+```
+
+### 6. Создать суперпользователя (для доступа к админ-панели)
+
+```bash
+python manage.py createsuperuser
+```
+
+### 7. Запустить сервер
+
+```bash
+python manage.py runserver
+```
+
+Приложение будет доступно по адресу: **http://127.0.0.1:8000/**
+Админ-панель: **http://127.0.0.1:8000/admin/**
+
+## Структура проекта
+
+```
+meeting-room-booking/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml          # CI: тесты и проверка миграций через GitHub Actions
+│
+├── access_control/             # Управление правами доступа к комнатам
+│   ├── migrations/
+│   ├── admin.py                 # Регистрация политик доступа в админке
+│   ├── models.py                 # Модель RoomAccessPolicy (view/book/manage)
+│   ├── views.py                   # Назначение и просмотр политик доступа
+│   └── urls.py
+│
+├── bookings/                   # Бронирование переговорных
+│   ├── migrations/
+│   ├── admin.py
+│   ├── models.py                 # Модели Booking и RoomEntry (журнал входов)
+│   ├── views.py                   # Создание, просмотр, отмена бронирований
+│   └── urls.py
+│
+├── rooms/                      # Переговорные комнаты и QR-доступ
+│   ├── management/commands/
+│   │   └── close_expired_bookings.py   # Команда закрытия просроченных броней
+│   ├── migrations/
+│   ├── admin.py
+│   ├── models.py                 # Модель Room (статус, вместимость, QR-код)
+│   ├── views.py                   # Каталог комнат, обработка QR-сканирования
+│   └── urls.py
+│
+├── users/                      # Кастомная модель пользователя
+│   ├── migrations/
+│   ├── admin.py
+│   ├── forms.py                   # Форма регистрации с полем телефона
+│   ├── models.py                  # Модель User (расширяет AbstractUser)
+│   ├── views.py
+│   └── urls.py
+│
+├── config/                     # Конфигурация Django-проекта
+│   ├── settings.py               # Настройки проекта, БД, приложения, middleware
+│   ├── urls.py                    # Корневой маршрутизатор
+│   ├── middleware.py
+│   ├── asgi.py
+│   └── wsgi.py
+│
+├── static/
+│   ├── css/
+│   │   ├── style.css              # Основные стили интерфейса
+│   │   └── admin.css              # Стили админ-панели
+│   └── js/
+│       └── app.js                 # Клиентская логика (QR-сканер и др.)
+│
+├── templates/
+│   ├── base.html                  # Базовый шаблон с навигацией
+│   ├── home.html                  # Главная страница
+│   ├── about.html
+│   ├── contacts.html
+│   ├── access/                    # Шаблоны управления доступом
+│   ├── bookings/                  # Шаблоны бронирований
+│   ├── rooms/                     # Каталог комнат, карточка, QR-сканер
+│   ├── users/                     # Профиль, вход, регистрация
+│   ├── registration/              # Смена/восстановление пароля
+│   └── admin/                     # Кастомизация админ-панели
+│
+├── manage.py
+├── pytest.ini                  # Конфигурация тестов
+├── requirements.txt             # Зависимости проекта
+├── .gitignore
+└── README.md
+```
+
+## Тестирование
+
+Тесты написаны с использованием `pytest` и `pytest-django`:
+
+```bash
+pytest
+```
+
+## CI/CD
+
+При каждом push в `main` и при открытии Pull Request автоматически запускается пайплайн GitHub Actions (`.github/workflows/deploy.yml`), который:
+
+1. Поднимает тестовую базу PostgreSQL;
+2. Устанавливает зависимости;
+3. Проверяет конфигурацию (`python manage.py check`);
+4. Проверяет актуальность миграций (`makemigrations --check --dry-run`);
+5. Применяет миграции;
+6. Запускает тесты (`pytest`).
+
+---
+
+**Лицензия:** учебный проект, распространяется без ограничений в образовательных целях.
