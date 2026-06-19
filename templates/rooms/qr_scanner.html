@@ -104,29 +104,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    startBtn.addEventListener('click', function () {
-        if (active) return;
-        scanner = new Html5Qrcode('qr-reader');
-        Html5Qrcode.getCameras().then(function (cams) {
-            if (!cams || !cams.length) { showResult(false, 'Камера не найдена.'); return; }
-            var camId = cams[cams.length - 1].id;
-            return scanner.start(
-                camId,
-                { fps: 10, qrbox: { width: 200, height: 200 } },
-                function (text) { stopScanner(); input.value = text; form.dispatchEvent(new Event('submit')); },
-                function () {}
-            );
-        }).then(function () { setActive(true); })
-          .catch(function () { showResult(false, 'Нет доступа к камере. Разрешите доступ в браузере.'); });
-    });
-
-    stopBtn.addEventListener('click', stopScanner);
-
-    form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        if (busy) return;
-        busy = true;
+    function submitQrCode(text) {
         stopScanner();
+        input.value = text;
+
+        busy = true;
         submitBtn.disabled = true;
         submitBtn.textContent = 'Проверяем...';
         exitBtn.hidden = true;
@@ -144,7 +126,33 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(function () { showResult(false, 'Не удалось связаться с сервером.'); })
         .finally(function () { submitBtn.disabled = false; submitBtn.textContent = 'Проверить доступ'; busy = false; });
+    }
+
+    startBtn.addEventListener('click', function () {
+        if (active) return;
+        scanner = new Html5Qrcode('qr-reader');
+        Html5Qrcode.getCameras().then(function (cams) {
+            if (!cams || !cams.length) { showResult(false, 'Камера не найдена.'); return; }
+            var camId = cams[cams.length - 1].id;
+            return scanner.start(
+                camId,
+                { fps: 10, qrbox: { width: 200, height: 200 } },
+                function (text) { submitQrCode(text); },
+                function () {}
+            );
+        }).then(function () { setActive(true); })
+          .catch(function () { showResult(false, 'Нет доступа к камере. Разрешите доступ в браузере.'); });
     });
+
+    // Предотвращаем двойную отправку: если QR-сканер уже отправил, не отправляем повторно
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (busy) return;
+        submitQrCode(input.value);
+    });
+
+    stopBtn.addEventListener('click', stopScanner);
+
 
     exitBtn.addEventListener('click', function () {
         var id = exitBtn.dataset.entryId;
