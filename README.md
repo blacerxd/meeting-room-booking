@@ -79,7 +79,7 @@ GRANT ALL PRIVILEGES ON DATABASE meeting_booking TO meeting_user;
 Создать файл `.env` в корне проекта:
 
 ```env
-SECRET_KEY=django-insecure-xd$lb&m@kq4kcvw9a&g_@)*(7%ji$05r6dfn6cqgg70_lesz=n
+SECRET_KEY=your_secret_key
 DEBUG=True
 DB_NAME=meeting_booking
 DB_USER=meeting_user
